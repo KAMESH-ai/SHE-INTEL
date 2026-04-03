@@ -15,6 +15,7 @@
             --accent-primary: #E85A5A;
             --accent-secondary: #5AE8B5;
             --accent-tertiary: #E8C85A;
+            --accent-risk: #E85A5A;
             --text-primary: #FAFAFA;
             --text-secondary: #A0A0B0;
             --text-muted: #606070;
@@ -456,6 +457,104 @@
         .fade-in-delay-2 { animation-delay: 0.2s; opacity: 0; }
         .fade-in-delay-3 { animation-delay: 0.3s; opacity: 0; }
         .fade-in-delay-4 { animation-delay: 0.4s; opacity: 0; }
+
+        .hero {
+            text-align: center;
+            padding: 60px 0 40px;
+        }
+
+        .hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+        }
+
+        .input-panel {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .btn {
+            font-weight: 600;
+            padding: 14px 28px;
+            border-radius: 8px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: none;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-risk), #d14a4a);
+            color: white;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(232, 90, 90, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-secondary);
+            border-color: var(--accent-secondary);
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--accent-risk);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
     </style>
 </head>
 <body>
@@ -491,7 +590,60 @@
     </div>
 
     <script>
-        const state = {
+        const DEMO_PROFILE = {
+            name: 'Priya',
+            age: '22',
+            state: 'Tamil Nadu',
+            cyclePhase: 'luteal',
+            symptoms: `Fatigue that feels heavier than usual, especially in the evenings
+Dizziness when standing up quickly
+Excessive hair fall for the past 3 cycles
+Irregular periods this year
+Brain fog and difficulty concentrating`
+        };
+
+        function loadDemoProfile() {
+            appState.userProfile = { ...DEMO_PROFILE };
+            document.getElementById('symptoms-input').value = appState.userProfile.symptoms;
+            document.getElementById('state-select').value = appState.userProfile.state;
+            document.getElementById('age-input').value = appState.userProfile.age;
+            document.getElementById('cycle-phase').value = appState.userProfile.cyclePhase;
+        }
+
+        function runAnalysis() {
+            const symptoms = document.getElementById('symptoms-input').value.trim();
+            const selectedState = document.getElementById('state-select').value;
+            const age = document.getElementById('age-input').value;
+            const cyclePhase = document.getElementById('cycle-phase').value;
+            
+            if (!symptoms) {
+                alert('Please describe your symptoms');
+                return;
+            }
+            
+            if (!selectedState) {
+                alert('Please select your state');
+                return;
+            }
+            
+            appState.userProfile = { symptoms, state: selectedState, age, cyclePhase };
+            appState.currentView = 'loading';
+            render();
+            
+            setTimeout(() => {
+                appState.analysisResult = {
+                    riskScore: 35,
+                    aqi: 156,
+                    aqiStatus: 'Unhealthy',
+                    aqiColor: '#E85A5A',
+                    summary: 'Based on your symptoms and current local air quality data showing moderate pollution levels, we recommend reducing outdoor activities during peak hours. The AQI in your area is 156, which falls in the "Unhealthy" category. Consider using N95 masks outdoors and ensuring proper ventilation at home.'
+                };
+                appState.currentView = 'results';
+                render();
+            }, 4000);
+        }
+
+        const appState = {
             currentView: 'input',
             userProfile: {
                 selectedState: '',
@@ -503,21 +655,57 @@
         function renderInputView() {
             return `
                 <section class="hero fade-in">
-                    <h2>Your Health.<br>Your Data.</h2>
-                    <p>Advanced health intelligence powered by real-time environmental and community health data across India.</p>
-                    <button class="cta-button" onclick="scrollToInput()">Run Health Analysis</button>
+                    <h2 class="hero-title">Your Health.<br>Your Data.</h2>
+                    <p class="hero-subtitle">Advanced health intelligence powered by real-time environmental and community health data across India.</p>
                 </section>
 
-                <section class="input-section fade-in fade-in-delay-2" id="inputSection">
-                    <div class="input-card">
-                        <label for="symptoms">Describe your symptoms or concerns</label>
-                        <textarea 
-                            class="symptom-input" 
-                            id="symptoms"
-                            placeholder="e.g., I have been experiencing headaches and fatigue for the past few days..."
-                        ></textarea>
-                        <div class="input-actions">
-                            <button class="submit-button" onclick="analyzeSymptoms()">Analyze Health</button>
+                <section class="input-section fade-in fade-in-delay-2">
+                    <div class="input-panel">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="age-input">Age</label>
+                                <input type="number" id="age-input" placeholder="Enter your age" />
+                            </div>
+                            <div class="form-group">
+                                <label for="state-select">State</label>
+                                <select id="state-select">
+                                    <option value="">Select State</option>
+                                    <option value="Delhi">Delhi</option>
+                                    <option value="Maharashtra">Maharashtra</option>
+                                    <option value="Karnataka">Karnataka</option>
+                                    <option value="Tamil Nadu">Tamil Nadu</option>
+                                    <option value="West Bengal">West Bengal</option>
+                                    <option value="Gujarat">Gujarat</option>
+                                    <option value="Rajasthan">Rajasthan</option>
+                                    <option value="Uttar Pradesh">Uttar Pradesh</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="cycle-phase">Cycle Phase</label>
+                                <select id="cycle-phase">
+                                    <option value="">Select Phase</option>
+                                    <option value="menstrual">Menstrual</option>
+                                    <option value="follicular">Follicular</option>
+                                    <option value="ovulation">Ovulation</option>
+                                    <option value="luteal">Luteal</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="symptoms-input">Describe your symptoms or concerns</label>
+                            <textarea 
+                                id="symptoms-input" 
+                                rows="5"
+                                placeholder="e.g., I have been experiencing headaches and fatigue for the past few days..."
+                            ></textarea>
+                        </div>
+                        <div style="display: flex; gap: 16px;">
+                            <button class="btn btn-primary" id="run-analysis">
+                                ⚡ Run Health Analysis
+                            </button>
+                            <button class="btn btn-secondary" id="load-demo">
+                                Load Demo Profile
+                            </button>
                         </div>
                     </div>
                 </section>
@@ -555,7 +743,7 @@
         }
 
         function renderResultsView() {
-            const result = state.analysisResult;
+            const result = appState.analysisResult;
             return `
                 <section class="results-dashboard fade-in" style="display: block;">
                     <div class="results-grid">
@@ -623,11 +811,13 @@
         function render() {
             const app = document.getElementById('app');
             
-            switch (state.currentView) {
+            switch (appState.currentView) {
                 case 'input':
                     app.innerHTML = renderInputView();
+                    document.getElementById('run-analysis').addEventListener('click', runAnalysis);
+                    document.getElementById('load-demo').addEventListener('click', loadDemoProfile);
                     break;
-                case 'loader':
+                case 'loading':
                     app.innerHTML = renderLoaderView();
                     runAnalysisAnimation();
                     break;
@@ -639,35 +829,11 @@
         }
 
         function scrollToInput() {
-            document.getElementById('inputSection').scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('inputSection')?.scrollIntoView({ behavior: 'smooth' });
         }
 
         function analyzeSymptoms() {
-            const symptoms = document.getElementById('symptoms').value;
-            const state = document.getElementById('stateSelector').value;
-            
-            if (!symptoms.trim()) {
-                alert('Please describe your symptoms');
-                return;
-            }
-            
-            state.userProfile.symptoms = symptoms;
-            state.userProfile.selectedState = state;
-            
-            state.currentView = 'loader';
-            render();
-            
-            setTimeout(() => {
-                state.analysisResult = {
-                    riskScore: 35,
-                    aqi: 156,
-                    aqiStatus: 'Unhealthy',
-                    aqiColor: '#E85A5A',
-                    summary: 'Based on your symptoms (headaches, fatigue) and current local air quality data showing moderate pollution levels, we recommend reducing outdoor activities during peak hours. The AQI in your area is 156, which falls in the "Unhealthy" category. Consider using N95 masks outdoors and ensuring proper ventilation at home.'
-                };
-                state.currentView = 'results';
-                render();
-            }, 4000);
+            runAnalysis();
         }
 
         function runAnalysisAnimation() {
@@ -690,7 +856,7 @@
         }
 
         function animateResults() {
-            const result = state.analysisResult;
+            const result = appState.analysisResult;
             const riskScore = result.riskScore;
             const circumference = 2 * Math.PI * 80;
             const offset = circumference - (riskScore / 100) * circumference;
