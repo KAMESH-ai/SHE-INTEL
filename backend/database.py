@@ -1,3 +1,4 @@
+import os
 import sqlite3
 from contextlib import contextmanager
 from pathlib import Path
@@ -34,10 +35,23 @@ def init_db():
                 CREATE TABLE IF NOT EXISTS periods (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     user_id INTEGER NOT NULL,
-                    start_date DATE NOT NULL,
-                    end_date DATE,
+                    start_date TEXT NOT NULL,
+                    end_date TEXT,
                     flow_level TEXT DEFAULT 'medium',
                     symptoms TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES users(id)
+                )
+            """)
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS health_analysis (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id INTEGER NOT NULL,
+                    symptoms TEXT NOT NULL,
+                    top_risk TEXT,
+                    confidence REAL,
+                    risk_level TEXT,
+                    predictions TEXT,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (user_id) REFERENCES users(id)
                 )
