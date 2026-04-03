@@ -1,3 +1,38 @@
+const Dashboard = {
+    render() {
+        return `
+            <div style="padding: 40px;">
+                <h1 style="font-size: 32px; font-weight: 600; margin-bottom: 8px;">Welcome, Demo User</h1>
+                <p style="color: var(--text-secondary); margin-bottom: 32px;">Your health dashboard at a glance</p>
+                
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 32px;">
+                    <div class="card" style="cursor: pointer; transition: all 0.2s;" onclick="window.location.hash='#calendar'">
+                        <i data-lucide="calendar" style="width:32px;height:32px;color:var(--accent-red);margin-bottom:12px"></i>
+                        <h3 style="font-size:18px;font-weight:600;margin-bottom:4px;">Calendar</h3>
+                        <p style="color:var(--text-secondary);font-size:14px;">View your cycles</p>
+                    </div>
+                    <div class="card" style="cursor: pointer; transition: all 0.2s;" onclick="window.location.hash='#analysis'">
+                        <i data-lucide="activity" style="width:32px;height:32px;color:var(--accent-red);margin-bottom:12px"></i>
+                        <h3 style="font-size:18px;font-weight:600;margin-bottom:4px;">Health Analysis</h3>
+                        <p style="color:var(--text-secondary);font-size:14px;">Run AI analysis</p>
+                    </div>
+                    <div class="card" style="cursor: pointer; transition: all 0.2s;" onclick="window.location.hash='#calendar'">
+                        <i data-lucide="heart" style="width:32px;height:32px;color:var(--accent-red);margin-bottom:12px"></i>
+                        <h3 style="font-size:18px;font-weight:600;margin-bottom:4px;">Log Period</h3>
+                        <p style="color:var(--text-secondary);font-size:14px;">Track your period</p>
+                    </div>
+                </div>
+                
+                <div class="card" style="max-width: 300px;">
+                    <h3 style="font-size:14px;color:var(--text-secondary);margin-bottom:8px;">Periods Logged</h3>
+                    <div style="font-size: 36px; font-weight: 700; color: var(--accent-green); margin-bottom: 8px;">12</div>
+                    <p style="font-size:14px;color:var(--text-secondary);">Total tracked cycles</p>
+                </div>
+            </div>
+        `;
+    }
+};
+
 const App = {
     init() {
         this.render();
@@ -44,7 +79,7 @@ const App = {
 
         switch (hash) {
             case '#dashboard':
-                app.innerHTML += '<div class="container"><div class="card"><h2>Dashboard</h2><p>Welcome to SHE-INTEL</p></div></div>';
+                app.innerHTML += Dashboard.render();
                 break;
             case '#analysis':
                 app.innerHTML += '<div class="container"><div class="card"><h2>Health Analysis</h2><p>Run ML-powered health analysis</p></div></div>';
