@@ -84,13 +84,24 @@ she-intel-india/
 | `/analyze` | POST | Run health analysis |
 | `/states` | GET | List Indian states |
 
-## Deployment (Railway)
+## Deployment (Render)
+
+### Option A: Blueprint (Recommended)
 
 1. Push code to GitHub
-2. Create new project on Railway.app
-3. Connect GitHub repository
-4. Set environment variables if needed
-5. Deploy
+2. Go to Render Dashboard -> New -> Blueprint
+3. Select this repository
+4. Render detects `render.yaml` and provisions the service
+5. Wait for build + deploy to complete
+
+### Option B: Manual Web Service
+
+Use these settings:
+
+- Runtime: `Python`
+- Build Command: `pip install -r requirements.txt`
+- Start Command: `uvicorn backend.main:app --host 0.0.0.0 --port $PORT`
+- Health Check Path: `/health`
 
 The frontend is served from `/app` route on the same server.
 
