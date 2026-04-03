@@ -10,17 +10,22 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         :root {
-            --bg-primary: #0B0F14;
-            --bg-card: #11161D;
-            --border: #1F2933;
-            --text-primary: #E5E7EB;
-            --text-secondary: #9CA3AF;
-            --accent-red: #FF6B6B;
+            --bg-dark: #05060A;
+            --bg-light: #0B0F1A;
+            --card-bg: #111827;
+            --card-bg-alt: #0F172A;
             --accent-green: #22C55E;
-            --warning: #F59E0B;
-            --radius: 12px;
-            --shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-            --shadow-elevated: 0 20px 40px rgba(0, 0, 0, 0.5);
+            --accent-green-dim: rgba(34, 197, 94, 0.15);
+            --accent-green-glow: rgba(34, 197, 94, 0.3);
+            --text-primary: #FFFFFF;
+            --text-secondary: #9CA3AF;
+            --text-muted: #6B7280;
+            --border: rgba(255, 255, 255, 0.1);
+            --border-hover: rgba(255, 255, 255, 0.2);
+            --radius: 16px;
+            --radius-sm: 8px;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --shadow-glow: 0 0 40px rgba(34, 197, 94, 0.15);
         }
 
         * {
@@ -31,224 +36,16 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg-primary);
+            background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-light) 100%);
             color: var(--text-primary);
             min-height: 100vh;
+            line-height: 1.6;
         }
 
         .container {
             max-width: 1100px;
             margin: 0 auto;
             padding: 0 40px;
-        }
-
-        .card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 24px;
-            box-shadow: var(--shadow);
-        }
-
-        .btn {
-            padding: 12px 24px;
-            border-radius: var(--radius);
-            border: none;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-
-        .btn-primary {
-            background: var(--accent-red);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            opacity: 0.9;
-            transform: translateY(-1px);
-        }
-
-        .btn-secondary {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text-primary);
-        }
-
-        .btn-secondary:hover {
-            border-color: var(--text-secondary);
-        }
-
-        .navbar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 64px;
-            background: rgba(17,22,29,0.8);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--border);
-            z-index: 100;
-        }
-        .navbar .container {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            height: 100%;
-        }
-        .logo {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--accent-red);
-            letter-spacing: -0.5px;
-        }
-        .nav-center { display: flex; gap: 8px; }
-        .nav-link {
-            padding: 8px 16px;
-            color: var(--text-secondary);
-            text-decoration: none;
-            border-radius: 8px;
-            font-size: 14px;
-            transition: all 0.2s;
-        }
-        .nav-link:hover, .nav-link.active {
-            color: var(--text-primary);
-            background: var(--border);
-        }
-        .nav-right {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        .profile-section {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .profile-avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: var(--accent-red);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 14px;
-        }
-        .profile-name {
-            font-size: 14px;
-            color: var(--text-primary);
-        }
-        .logout-btn {
-            color: var(--text-secondary);
-            font-size: 13px;
-            cursor: pointer;
-            background: none;
-            border: none;
-        }
-        .logout-btn:hover { color: var(--accent-red); }
-
-        /* Modal Styles */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(4px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 200;
-            animation: fadeIn 0.2s ease;
-        }
-        .modal-content {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 32px;
-            width: 100%;
-            max-width: 480px;
-            box-shadow: var(--shadow-elevated);
-            animation: scaleIn 0.2s ease;
-        }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes scaleIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-        }
-        .modal-title {
-            font-size: 20px;
-            font-weight: 600;
-        }
-        .modal-close {
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            cursor: pointer;
-            padding: 4px;
-        }
-        .modal-close:hover {
-            color: var(--text-primary);
-        }
-
-        /* Responsive Styles */
-        @media (max-width: 768px) {
-            .container {
-                padding: 0 20px !important;
-            }
-            
-            .navbar .container {
-                padding: 0 20px !important;
-            }
-            
-            .nav-center {
-                display: none !important;
-            }
-            
-            .card {
-                padding: 16px !important;
-            }
-            
-            h1 {
-                font-size: 24px !important;
-            }
-            
-            .feature-cards {
-                grid-template-columns: 1fr !important;
-            }
-            
-            .insights-grid {
-                grid-template-columns: 1fr !important;
-            }
-            
-            .modal-content {
-                margin: 20px;
-                padding: 20px !important;
-            }
-        }
-
-        /* Card hover effect */
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-elevated);
-        }
-
-        /* Smooth transitions for interactive elements */
-        a, button, .card {
-            transition: all 0.2s ease;
-        }
-
-        /* Input focus states */
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: var(--accent-red);
-            box-shadow: 0 0 0 2px rgba(255, 107, 107, 0.2);
         }
     </style>
 </head>
