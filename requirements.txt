@@ -3,7 +3,7 @@ uvicorn
 gunicorn
 jinja2
 python-multipart
-pydantic
+pydantic[email]
 numpy
 scikit-learn
 xgboost
