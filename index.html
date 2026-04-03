@@ -458,11 +458,6 @@
         .fade-in-delay-3 { animation-delay: 0.3s; opacity: 0; }
         .fade-in-delay-4 { animation-delay: 0.4s; opacity: 0; }
 
-        .hero {
-            text-align: center;
-            padding: 60px 0 40px;
-        }
-
         .hero-title {
             font-family: 'Playfair Display', serif;
             font-size: 3.5rem;
@@ -1062,25 +1057,6 @@ Brain fog and difficulty concentrating`
 
         function analyzeSymptoms() {
             runAnalysis();
-        }
-
-        function runAnalysisAnimation() {
-            const steps = [1, 2, 3, 4, 5];
-            let currentStep = 0;
-            
-            const interval = setInterval(() => {
-                if (currentStep > 0) {
-                    document.getElementById(`step${currentStep}`).classList.remove('active');
-                }
-                currentStep++;
-                
-                if (currentStep > 5) {
-                    clearInterval(interval);
-                    return;
-                }
-                
-                document.getElementById(`step${currentStep}`).classList.add('active');
-            }, 800);
         }
 
         function animateResults() {
