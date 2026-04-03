@@ -398,8 +398,74 @@ const App = {
     },
     
     openPeriodModal() {
-        alert('Modal will be implemented in Task 7');
-    }
+        document.body.insertAdjacentHTML('beforeend', `
+            <div id="period-modal" class="modal-overlay" onclick="if(event.target===this)App.closePeriodModal()">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title">Log Period</h2>
+                        <button class="modal-close" onclick="App.closePeriodModal()">
+                            <i data-lucide="x" style="width: 20px; height: 20px;"></i>
+                        </button>
+                    </div>
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-size: 14px; color: var(--text-secondary);">Start Date</label>
+                        <input type="date" id="period-start" style="width: 100%; padding: 12px; border-radius: var(--radius); background: var(--bg-primary); border: 1px solid var(--border); color: var(--text-primary); font-size: 14px;">
+                    </div>
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-size: 14px; color: var(--text-secondary);">End Date</label>
+                        <input type="date" id="period-end" style="width: 100%; padding: 12px; border-radius: var(--radius); background: var(--bg-primary); border: 1px solid var(--border); color: var(--text-primary); font-size: 14px;">
+                    </div>
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-size: 14px; color: var(--text-secondary);">Flow Level</label>
+                        <select id="period-flow" style="width: 100%; padding: 12px; border-radius: var(--radius); background: var(--bg-primary); border: 1px solid var(--border); color: var(--text-primary); font-size: 14px;">
+                            <option value="Light">Light</option>
+                            <option value="Medium" selected>Medium</option>
+                            <option value="Heavy">Heavy</option>
+                        </select>
+                    </div>
+                    <div style="margin-bottom: 24px;">
+                        <label style="display: block; margin-bottom: 8px; font-size: 14px; color: var(--text-secondary);">Symptoms (optional)</label>
+                        <textarea id="period-symptoms" rows="3" style="width: 100%; padding: 12px; border-radius: var(--radius); background: var(--bg-primary); border: 1px solid var(--border); color: var(--text-primary); font-size: 14px; resize: vertical; font-family: inherit;"></textarea>
+                    </div>
+                    <div style="display: flex; gap: 12px;">
+                        <button class="btn btn-secondary" style="flex: 1;" onclick="App.closePeriodModal()">Cancel</button>
+                        <button class="btn btn-primary" style="flex: 1;" onclick="App.savePeriod()">Save</button>
+                    </div>
+                </div>
+            </div>
+        `);
+        if (window.lucide) window.lucide.createIcons();
+    },
+
+    closePeriodModal() {
+        document.getElementById('period-modal')?.remove();
+    },
+
+    async savePeriod() {
+        const data = {
+            start_date: document.getElementById('period-start').value,
+            end_date: document.getElementById('period-end').value,
+            flow_level: document.getElementById('period-flow').value,
+            symptoms: document.getElementById('period-symptoms').value,
+        };
+        
+        if (!data.start_date || !data.end_date) {
+            alert('Please fill in start and end dates');
+            return;
+        }
+        
+        try {
+            await fetch('/periods', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            });
+            this.closePeriodModal();
+            window.location.hash = '#calendar';
+        } catch (e) {
+            alert('Failed to save: ' + e.message);
+        }
+    },
 };
 
 document.addEventListener('DOMContentLoaded', () => App.init());
