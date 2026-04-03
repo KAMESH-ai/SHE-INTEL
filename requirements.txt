@@ -11,5 +11,5 @@ lightgbm
 catboost
 python-jose[cryptography]
 passlib[bcrypt]
-bcrypt
+bcrypt<5
 requests
