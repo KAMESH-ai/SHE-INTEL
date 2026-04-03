@@ -5,7 +5,7 @@ const Dashboard = {
                 <h1 style="font-size: 32px; font-weight: 600; margin-bottom: 8px;">Welcome, Demo User</h1>
                 <p style="color: var(--text-secondary); margin-bottom: 32px;">Your health dashboard at a glance</p>
                 
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 32px;">
+                <div class="card feature-cards" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 32px;">
                     <div class="card" style="cursor: pointer; transition: all 0.2s;" onclick="window.location.hash='#calendar'">
                         <i data-lucide="calendar" style="width:32px;height:32px;color:var(--accent-red);margin-bottom:12px"></i>
                         <h3 style="font-size:18px;font-weight:600;margin-bottom:4px;">Calendar</h3>
@@ -166,7 +166,7 @@ const Results = {
                 </div>
                 <p style="text-align: center; font-size: 18px; font-weight: 600; color: var(--accent-red); margin-bottom: 40px;">${riskLabel}</p>
                 
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 32px;">
+                <div class="card insights-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 32px;">
                     <div class="card">
                         <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 12px;">India Context</h3>
                         <ul style="color: var(--text-secondary); font-size: 14px; list-style: disc; padding-left: 20px;">

@@ -196,6 +196,60 @@
         .modal-close:hover {
             color: var(--text-primary);
         }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 20px !important;
+            }
+            
+            .navbar .container {
+                padding: 0 20px !important;
+            }
+            
+            .nav-center {
+                display: none !important;
+            }
+            
+            .card {
+                padding: 16px !important;
+            }
+            
+            h1 {
+                font-size: 24px !important;
+            }
+            
+            .feature-cards {
+                grid-template-columns: 1fr !important;
+            }
+            
+            .insights-grid {
+                grid-template-columns: 1fr !important;
+            }
+            
+            .modal-content {
+                margin: 20px;
+                padding: 20px !important;
+            }
+        }
+
+        /* Card hover effect */
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-elevated);
+        }
+
+        /* Smooth transitions for interactive elements */
+        a, button, .card {
+            transition: all 0.2s ease;
+        }
+
+        /* Input focus states */
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--accent-red);
+            box-shadow: 0 0 0 2px rgba(255, 107, 107, 0.2);
+        }
     </style>
 </head>
 <body>
