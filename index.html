@@ -555,6 +555,142 @@
             grid-template-columns: repeat(3, 1fr);
             gap: 16px;
         }
+
+        /* Loading View */
+        .loading-view {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 60vh;
+            padding: 40px 0;
+        }
+
+        .loading-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 48px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .loading-spinner {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 40px;
+            position: relative;
+        }
+
+        .spinner-svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+
+        .spinner-track {
+            fill: none;
+            stroke: var(--bg-tertiary);
+            stroke-width: 8;
+        }
+
+        .spinner-progress {
+            fill: none;
+            stroke: var(--accent-risk);
+            stroke-width: 8;
+            stroke-linecap: round;
+            stroke-dasharray: 283;
+            stroke-dashoffset: 283;
+            animation: spin 1.5s linear infinite;
+        }
+
+        @keyframes spin {
+            from { stroke-dashoffset: 283; }
+            to { stroke-dashoffset: 0; }
+        }
+
+        .spinner-number {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .loading-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .loading-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            opacity: 0.3;
+            transition: opacity 0.3s ease;
+        }
+
+        .loading-step.active {
+            opacity: 1;
+        }
+
+        .loading-step.completed {
+            opacity: 1;
+        }
+
+        .step-indicator {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .step-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--text-muted);
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .loading-step.active .step-dot {
+            background: var(--accent-risk);
+            box-shadow: 0 0 12px var(--accent-risk);
+        }
+
+        .loading-step.completed .step-dot {
+            background: var(--accent-secondary);
+            box-shadow: 0 0 8px var(--accent-secondary);
+        }
+
+        .step-line {
+            width: 2px;
+            height: 40px;
+            background: var(--border);
+            flex-shrink: 0;
+        }
+
+        .loading-step:last-child .step-line {
+            display: none;
+        }
+
+        .step-content {
+            padding-bottom: 24px;
+        }
+
+        .step-text {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .step-subtext {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
     </style>
 </head>
 <body>
@@ -590,6 +726,110 @@
     </div>
 
     <script>
+        const ANALYSIS_STEPS = [
+            { id: 1, text: 'Extracting symptoms...', subtext: 'NLP parsing your input' },
+            { id: 2, text: 'Building digital twin...', subtext: 'Comparing to your baseline' },
+            { id: 3, text: 'Analyzing patterns...', subtext: 'Cross-referencing cycle history' },
+            { id: 4, text: 'Enriching with India context...', subtext: 'Applying regional health data' },
+            { id: 5, text: 'Computing risk scores...', subtext: 'Running ML prediction model' }
+        ];
+
+        function renderLoadingView() {
+            return `
+                <section class="loading-view">
+                    <div class="loading-card">
+                        <div class="loading-spinner">
+                            <svg viewBox="0 0 100 100" class="spinner-svg">
+                                <circle cx="50" cy="50" r="45" class="spinner-track"/>
+                                <circle cx="50" cy="50" r="45" class="spinner-progress"/>
+                            </svg>
+                            <div class="spinner-number">1</div>
+                        </div>
+                        
+                        <div class="loading-steps">
+                            ${ANALYSIS_STEPS.map((step, i) => `
+                                <div class="loading-step ${i === 0 ? 'active' : ''}" data-step="${step.id}">
+                                    <div class="step-indicator">
+                                        <span class="step-dot"></span>
+                                        <span class="step-line"></span>
+                                    </div>
+                                    <div class="step-content">
+                                        <div class="step-text">${step.text}</div>
+                                        <div class="step-subtext">${step.subtext}</div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </section>
+            `;
+        }
+
+        function startLoadingAnimation() {
+            const steps = document.querySelectorAll('.loading-step');
+            const spinnerNumber = document.querySelector('.spinner-number');
+            let currentStep = 0;
+            
+            const interval = setInterval(() => {
+                steps.forEach((step, i) => {
+                    step.classList.remove('active', 'completed');
+                    if (i < currentStep) {
+                        step.classList.add('completed');
+                    } else if (i === currentStep) {
+                        step.classList.add('active');
+                    }
+                });
+                
+                spinnerNumber.textContent = currentStep + 1;
+                
+                currentStep++;
+                
+                if (currentStep >= 5) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        showResults();
+                    }, 500);
+                }
+            }, 600);
+        }
+
+        function showResults() {
+            appState.analysisResult = {
+                riskScore: 62,
+                aqi: 58,
+                aqiStatus: 'High',
+                aqiColor: '#E85A5A',
+                topRisk: {
+                    condition: 'Iron Deficiency Anemia',
+                    confidence: 62,
+                    deviation: 42
+                },
+                indiaContext: {
+                    diet: 'Rice-dominant meals with low iron bioavailability',
+                    recommendations: ['Add vitamin C to meals', 'Pair iron with guava/lemon', 'Avoid tea with meals']
+                },
+                community: {
+                    state: 'Tamil Nadu',
+                    ageGroup: '18-25',
+                    prevalence: 45
+                },
+                genderBias: {
+                    condition: 'Iron Deficiency Anemia',
+                    femaleSubjectUsage: 35
+                },
+                actions: [
+                    'Request CBC test from your doctor',
+                    'Add iron-rich foods: lentils, leafy greens, jaggery',
+                    'Schedule ferritin and TIBC test',
+                    'Consider iron supplementation after consulting doctor'
+                ],
+                summary: 'Based on your symptoms of fatigue, dizziness, hair fall, and irregular periods, combined with regional health data from Tamil Nadu, we have identified a high probability of Iron Deficiency Anemia. The rice-dominant diet common in this region contributes to low iron bioavailability. Consider adding vitamin C-rich foods like guava and lemon to improve iron absorption. Community data shows 45% prevalence in your age group. We recommend consulting a doctor for CBC and ferritin tests.'
+            };
+            
+            appState.currentView = 'results';
+            render();
+        }
+
         const DEMO_PROFILE = {
             name: 'Priya',
             age: '22',
@@ -629,18 +869,6 @@ Brain fog and difficulty concentrating`
             appState.userProfile = { symptoms, state: selectedState, age, cyclePhase };
             appState.currentView = 'loading';
             render();
-            
-            setTimeout(() => {
-                appState.analysisResult = {
-                    riskScore: 35,
-                    aqi: 156,
-                    aqiStatus: 'Unhealthy',
-                    aqiColor: '#E85A5A',
-                    summary: 'Based on your symptoms and current local air quality data showing moderate pollution levels, we recommend reducing outdoor activities during peak hours. The AQI in your area is 156, which falls in the "Unhealthy" category. Consider using N95 masks outdoors and ensuring proper ventilation at home.'
-                };
-                appState.currentView = 'results';
-                render();
-            }, 4000);
         }
 
         const appState = {
@@ -818,8 +1046,8 @@ Brain fog and difficulty concentrating`
                     document.getElementById('load-demo').addEventListener('click', loadDemoProfile);
                     break;
                 case 'loading':
-                    app.innerHTML = renderLoaderView();
-                    runAnalysisAnimation();
+                    app.innerHTML = renderLoadingView();
+                    startLoadingAnimation();
                     break;
                 case 'results':
                     app.innerHTML = renderResultsView();
