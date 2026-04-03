@@ -1014,6 +1014,62 @@
             font-size: 0.875rem;
             color: var(--text-secondary);
         }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .result-card[style*="grid-column: span 2"] {
+                grid-column: span 1;
+            }
+            
+            .risk-gauge {
+                width: 160px;
+                height: 160px;
+            }
+            
+            .risk-value {
+                font-size: 2.25rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .app-container {
+                padding: 16px;
+            }
+            
+            .input-panel,
+            .loading-card,
+            .result-card {
+                padding: 20px;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Micro-interactions */
+        .btn:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        .form-group textarea:focus,
+        .form-group input:focus,
+        .form-group select:focus {
+            box-shadow: 0 0 0 3px rgba(232, 90, 90, 0.15);
+        }
+
+        .result-card:hover {
+            border-color: var(--text-muted);
+            transition: border-color 0.3s;
+        }
     </style>
 </head>
 <body>
