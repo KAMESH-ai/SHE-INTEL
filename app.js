@@ -122,7 +122,10 @@ const Analysis = {
         try {
             const res = await fetch('/analyze', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    ...(Auth.token ? { 'Authorization': `Bearer ${Auth.token}` } : {})
+                },
                 body: JSON.stringify(data),
             });
             const result = await res.json();
@@ -227,13 +230,47 @@ const Results = {
     }
 };
 
+const Auth = {
+    token: localStorage.getItem('token'),
+    
+    async login(email, password) {
+        const res = await fetch('/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password }),
+        });
+        if (!res.ok) throw new Error('Login failed');
+        const data = await res.json();
+        this.token = data.access_token;
+        localStorage.setItem('token', data.access_token);
+    },
+    
+    logout() {
+        this.token = null;
+        localStorage.removeItem('token');
+    },
+    
+    async getMe() {
+        if (!this.token) return null;
+        const res = await fetch('/auth/me', {
+            headers: { 'Authorization': `Bearer ${this.token}` },
+        });
+        if (!res.ok) return null;
+        return await res.json();
+    }
+};
+
 const Calendar = {
     currentDate: new Date(),
     periods: [],
     
     async loadPeriods() {
         try {
-            const res = await fetch('/periods');
+            const res = await fetch('/periods', {
+                headers: {
+                    ...(Auth.token ? { 'Authorization': `Bearer ${Auth.token}` } : {})
+                },
+            });
             return await res.json();
         } catch { return []; }
     },
@@ -457,7 +494,10 @@ const App = {
         try {
             await fetch('/periods', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    ...(Auth.token ? { 'Authorization': `Bearer ${Auth.token}` } : {})
+                },
                 body: JSON.stringify(data),
             });
             this.closePeriodModal();
