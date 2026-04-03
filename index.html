@@ -78,6 +78,76 @@
         .btn-secondary:hover {
             border-color: var(--text-secondary);
         }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 64px;
+            background: rgba(17,22,29,0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            z-index: 100;
+        }
+        .navbar .container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 100%;
+        }
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--accent-red);
+            letter-spacing: -0.5px;
+        }
+        .nav-center { display: flex; gap: 8px; }
+        .nav-link {
+            padding: 8px 16px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: var(--text-primary);
+            background: var(--border);
+        }
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .profile-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .profile-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--accent-red);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .profile-name {
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+        .logout-btn {
+            color: var(--text-secondary);
+            font-size: 13px;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+        .logout-btn:hover { color: var(--accent-red); }
     </style>
 </head>
 <body>
