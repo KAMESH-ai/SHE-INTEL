@@ -16,10 +16,13 @@
             --accent-secondary: #5AE8B5;
             --accent-tertiary: #E8C85A;
             --accent-risk: #E85A5A;
+            --accent-warning: #E8C85A;
             --text-primary: #FAFAFA;
             --text-secondary: #A0A0B0;
             --text-muted: #606070;
             --border: #2A2A35;
+            --font-display: 'Playfair Display', serif;
+            --font-mono: 'JetBrains Mono', monospace;
         }
 
         * {
@@ -686,6 +689,331 @@
             font-size: 0.875rem;
             color: var(--text-muted);
         }
+
+        .results-view {
+            animation: fadeIn 0.6s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .risk-gauge-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 48px;
+        }
+
+        .risk-gauge {
+            width: 200px;
+            height: 200px;
+            position: relative;
+        }
+
+        .risk-gauge-svg {
+            transform: rotate(-90deg);
+        }
+
+        .risk-gauge-track {
+            fill: none;
+            stroke: var(--bg-tertiary);
+            stroke-width: 12;
+        }
+
+        .risk-gauge-progress {
+            fill: none;
+            stroke: var(--accent-risk);
+            stroke-width: 12;
+            stroke-linecap: round;
+            stroke-dasharray: 565;
+            stroke-dashoffset: 565;
+            animation: gaugeFill 1.5s ease-out forwards;
+            filter: drop-shadow(0 0 8px var(--accent-risk));
+        }
+
+        @keyframes gaugeFill {
+            to { stroke-dashoffset: var(--gauge-offset); }
+        }
+
+        .risk-gauge-value {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .risk-value {
+            font-family: var(--font-mono);
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--accent-risk);
+        }
+
+        .risk-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            margin-top: 40px;
+        }
+
+        .result-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            animation: fadeIn 0.6s backwards;
+        }
+
+        .result-card:nth-child(1) { animation-delay: 0.1s; }
+        .result-card:nth-child(2) { animation-delay: 0.2s; }
+        .result-card:nth-child(3) { animation-delay: 0.3s; }
+        .result-card:nth-child(4) { animation-delay: 0.4s; }
+        .result-card:nth-child(5) { animation-delay: 0.5s; }
+
+        .card-title {
+            font-family: var(--font-display);
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        .card-subtitle {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .food-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .food-chip {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 6px 14px;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+
+        .food-chip:hover {
+            border-color: var(--accent-risk);
+            color: var(--text-primary);
+        }
+
+        .diet-context {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .aqi-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(232, 90, 90, 0.15);
+            border: 1px solid var(--accent-risk);
+            border-radius: 8px;
+            padding: 8px 16px;
+            margin-bottom: 12px;
+        }
+
+        .aqi-level {
+            font-weight: 600;
+            color: var(--accent-risk);
+        }
+
+        .aqi-value-new {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-secondary);
+        }
+
+        .bar-chart {
+            margin-top: 12px;
+        }
+
+        .bar-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .bar-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            width: 120px;
+        }
+
+        .bar-track {
+            flex: 1;
+            height: 24px;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-risk), #FF8080);
+            border-radius: 4px;
+            transition: width 1s ease-out;
+        }
+
+        .bar-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+            color: var(--text-primary);
+        }
+
+        .gender-bias-stat {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 12px;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .bias-percentage {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--accent-tertiary);
+        }
+
+        .bias-context {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .action-list {
+            list-style: none;
+        }
+
+        .action-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .action-item:last-child {
+            border-bottom: none;
+        }
+
+        .action-number {
+            width: 24px;
+            height: 24px;
+            background: var(--accent-risk);
+            color: var(--bg-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .action-text {
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .disclaimer {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            background: rgba(232, 200, 90, 0.1);
+            border: 1px solid var(--accent-tertiary);
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-top: 32px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .disclaimer-icon {
+            font-size: 1.25rem;
+        }
+
+        .disclaimer span:last-child {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .results-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .results-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            margin-bottom: 8px;
+        }
+
+        .results-subtitle {
+            color: var(--text-secondary);
+        }
+
+        .risk-info-card {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .condition-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.75rem;
+            margin-bottom: 12px;
+        }
+
+        .deviation-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(232, 90, 90, 0.15);
+            border: 1px solid var(--accent-risk);
+            border-radius: 8px;
+            padding: 8px 16px;
+        }
+
+        .deviation-icon {
+            color: var(--accent-risk);
+            font-weight: 600;
+        }
+
+        .deviation-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            color: var(--accent-risk);
+        }
+
+        .deviation-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
     </style>
 </head>
 <body>
@@ -965,7 +1293,144 @@ Brain fog and difficulty concentrating`
             `;
         }
 
-        function renderResultsView() {
+        function renderResultsView(result) {
+            const gaugePercent = result.topRisk.confidence;
+            const gaugeOffset = 565 - (565 * gaugePercent / 100);
+            
+            return `
+                <div class="results-view">
+                    <div class="results-header">
+                        <h2 class="results-title">Health Analysis Complete</h2>
+                        <p class="results-subtitle">Based on your profile and symptoms</p>
+                    </div>
+                    
+                    <div class="risk-gauge-container">
+                        <div class="risk-gauge">
+                            <svg class="risk-gauge-svg" viewBox="0 0 200 200">
+                                <circle class="risk-gauge-track" cx="100" cy="100" r="90"/>
+                                <circle class="risk-gauge-progress" cx="100" cy="100" r="90" 
+                                    style="--gauge-offset: ${gaugeOffset}"/>
+                            </svg>
+                            <div class="risk-gauge-value">
+                                <div class="risk-value">${result.topRisk.confidence}%</div>
+                                <div class="risk-label">Risk Level</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="risk-info-card">
+                        <div class="condition-name">${result.topRisk.condition}</div>
+                        <div class="deviation-badge">
+                            <span class="deviation-icon">↑</span>
+                            <span class="deviation-value">+${result.topRisk.deviation}%</span>
+                            <span class="deviation-label">fatigue deviation from your baseline</span>
+                        </div>
+                    </div>
+                    
+                    <div class="results-grid">
+                        ${renderIndiaContextCard(result.indiaContext)}
+                        ${renderAQICard(result.aqi)}
+                        ${renderCommunityCard(result.community)}
+                        ${renderGenderBiasCard(result.genderBias)}
+                        ${renderActionsCard(result.actions)}
+                    </div>
+                    
+                    <div class="disclaimer">
+                        <span class="disclaimer-icon">⚠️</span>
+                        <span>Not a diagnosis. This is pattern-based insight. Please consult a healthcare professional for proper evaluation.</span>
+                    </div>
+                    
+                    <button class="btn btn-secondary" id="start-over" style="margin-top: 32px;">
+                        Start New Analysis
+                    </button>
+                </div>
+            `;
+        }
+
+        function renderIndiaContextCard(ctx) {
+            return `
+                <div class="result-card">
+                    <div class="card-title">🍛 India Context</div>
+                    <div class="card-subtitle">Dietary patterns in ${ctx.diet.split(',')[0]}</div>
+                    <p class="diet-context">${ctx.diet}</p>
+                    <div class="food-chips">
+                        ${ctx.recommendations.map(r => `<span class="food-chip">${r}</span>`).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderAQICard(aqi) {
+            return `
+                <div class="result-card">
+                    <div class="card-title">🌬️ Air Quality</div>
+                    <div class="card-subtitle">${aqi.city}</div>
+                    <div class="aqi-badge">
+                        <span class="aqi-level">${aqi.level}</span>
+                        <span class="aqi-value-new">PM2.5 ${aqi.value} µg/m³</span>
+                    </div>
+                    <p style="font-size: 0.875rem; color: var(--text-secondary);">
+                        High PM2.5 during luteal phase increases fatigue probability by 23%
+                    </p>
+                </div>
+            `;
+        }
+
+        function renderCommunityCard(comm) {
+            return `
+                <div class="result-card">
+                    <div class="card-title">📊 Community Intelligence</div>
+                    <div class="card-subtitle">How you compare to women in ${comm.state}</div>
+                    <div class="bar-chart">
+                        <div class="bar-container">
+                            <span class="bar-label">Your risk</span>
+                            <div class="bar-track">
+                                <div class="bar-fill" style="width: 62%"></div>
+                            </div>
+                            <span class="bar-value">62%</span>
+                        </div>
+                        <div class="bar-container">
+                            <span class="bar-label">State avg</span>
+                            <div class="bar-track">
+                                <div class="bar-fill" style="width: ${comm.prevalence}%"></div>
+                            </div>
+                            <span class="bar-value">${comm.prevalence}%</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderGenderBiasCard(bias) {
+            return `
+                <div class="result-card">
+                    <div class="card-title">⚖️ Gender Bias Radar</div>
+                    <div class="card-subtitle">Research gap for ${bias.condition}</div>
+                    <div class="gender-bias-stat">
+                        <span class="bias-percentage">${bias.femaleSubjectUsage}%</span>
+                        <span class="bias-context">of ${bias.condition} studies used female subjects. Diagnostic thresholds often set on male data.</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderActionsCard(actions) {
+            return `
+                <div class="result-card" style="grid-column: span 2;">
+                    <div class="card-title">✅ Recommended Actions</div>
+                    <ul class="action-list">
+                        ${actions.map((action, i) => `
+                            <li class="action-item">
+                                <span class="action-number">${i + 1}</span>
+                                <span class="action-text">${action}</span>
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+
+        function renderResultsViewOld() {
             const result = appState.analysisResult;
             return `
                 <section class="results-dashboard fade-in" style="display: block;">
@@ -1045,8 +1510,7 @@ Brain fog and difficulty concentrating`
                     startLoadingAnimation();
                     break;
                 case 'results':
-                    app.innerHTML = renderResultsView();
-                    setTimeout(animateResults, 100);
+                    app.innerHTML = renderResultsView(appState.analysisResult);
                     break;
             }
         }
@@ -1058,18 +1522,15 @@ Brain fog and difficulty concentrating`
         function analyzeSymptoms() {
             runAnalysis();
         }
-
-        function animateResults() {
-            const result = appState.analysisResult;
-            const riskScore = result.riskScore;
-            const circumference = 2 * Math.PI * 80;
-            const offset = circumference - (riskScore / 100) * circumference;
-            
-            setTimeout(() => {
-                document.getElementById('gaugeFill').style.strokeDashoffset = offset;
-                document.getElementById('gaugeText').textContent = riskScore + '%';
-            }, 300);
-        }
+        
+        document.addEventListener('click', (e) => {
+            if (e.target.id === 'start-over') {
+                appState.currentView = 'input';
+                appState.userProfile = {};
+                appState.analysisResult = null;
+                render();
+            }
+        });
 
         document.addEventListener('DOMContentLoaded', () => {
             render();
