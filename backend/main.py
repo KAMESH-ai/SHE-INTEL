@@ -66,6 +66,21 @@ async def load_model():
     init_db()
     print("Database initialized!")
 
+    # Create demo user
+    from database import get_db
+    from auth import get_password_hash
+
+    with get_db() as conn:
+        existing = conn.execute(
+            "SELECT id FROM users WHERE email = ?", ("demo@sheintel.in",)
+        ).fetchone()
+        if not existing:
+            conn.execute(
+                "INSERT INTO users (email, password_hash, name) VALUES (?, ?, ?)",
+                ("demo@sheintel.in", get_password_hash("demo123"), "Demo User"),
+            )
+            print("Demo user created: demo@sheintel.in / demo123")
+
 
 # Request models
 class HealthAnalysisRequest(BaseModel):

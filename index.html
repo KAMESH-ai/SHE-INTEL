@@ -3,29 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SHE-INTEL – Health Intelligence</title>
+    <title>SHE-INTEL INDIA - Health Intelligence</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        /* Lucide icons */
+        i[data-lucide] { display: inline-flex !important; }
+    </style>
     <style>
         :root {
             --bg-dark: #05060A;
             --bg-light: #0B0F1A;
             --card-bg: #111827;
-            --card-bg-alt: #0F172A;
-            --accent-green: #22C55E;
-            --accent-green-dim: rgba(34, 197, 94, 0.15);
-            --accent-green-glow: rgba(34, 197, 94, 0.3);
+            --card-bg-hover: #1a2235;
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --border-light: rgba(255, 255, 255, 0.12);
             --text-primary: #FFFFFF;
             --text-secondary: #9CA3AF;
             --text-muted: #6B7280;
-            --border: rgba(255, 255, 255, 0.1);
-            --border-hover: rgba(255, 255, 255, 0.2);
-            --radius: 16px;
+            --accent-green: #22C55E;
+            --accent-green-dim: rgba(34, 197, 94, 0.15);
+            --accent-green-glow: rgba(34, 197, 94, 0.3);
+            --accent-red: #FF6B6B;
+            --accent-red-dim: rgba(255, 107, 107, 0.15);
+            --warning: #F59E0B;
+            --warning-dim: rgba(245, 158, 11, 0.15);
+            --radius-xl: 20px;
+            --radius-lg: 16px;
+            --radius-md: 12px;
             --radius-sm: 8px;
-            --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-            --shadow-glow: 0 0 40px rgba(34, 197, 94, 0.15);
+            --shadow-soft: 0 4px 24px rgba(0, 0, 0, 0.4);
+            --shadow-elevated: 0 8px 32px rgba(0, 0, 0, 0.5);
+            --glass-bg: rgba(17, 24, 39, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
         }
 
         * {
@@ -36,21 +48,1630 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-light) 100%);
+            background: linear-gradient(180deg, var(--bg-dark) 0%, var(--bg-light) 100%);
             color: var(--text-primary);
             min-height: 100vh;
             line-height: 1.6;
+            letter-spacing: -0.01em;
         }
 
-        .container {
-            max-width: 1100px;
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(ellipse 80% 50% at 50% -20%, rgba(34, 197, 94, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 40% at 100% 0%, rgba(34, 197, 94, 0.05) 0%, transparent 40%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .app-container {
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 0 40px;
+            padding: 32px 40px;
+            display: none;
+        }
+
+        .app-container.active {
+            display: block;
+        }
+
+        /* Auth Container */
+        .auth-container {
+            display: none;
+            max-width: 440px;
+            margin: 80px auto;
+            padding: 0 20px;
+        }
+
+        .auth-container.active {
+            display: block;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 48px;
+        }
+
+        .logo-section {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .logo {
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-green) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo-subtitle {
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text-muted);
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .location-select {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            padding: 10px 16px;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            backdrop-filter: blur(12px);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .location-select:hover {
+            border-color: var(--accent-green);
+            background: var(--card-bg);
+        }
+
+        .location-select:focus {
+            outline: none;
+            border-color: var(--accent-green);
+            box-shadow: 0 0 0 3px var(--accent-green-dim);
+        }
+
+        .profile-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 12px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 30px;
+        }
+
+        .profile-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-green), #4ADE80);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--bg-dark);
+        }
+
+        .profile-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .logout-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 13px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .logout-btn:hover {
+            color: var(--accent-red);
+            background: var(--accent-red-dim);
+        }
+
+        /* Nav */
+        .nav-tabs {
+            display: flex;
+            gap: 4px;
+            background: var(--glass-bg);
+            padding: 4px;
+            border-radius: 12px;
+            backdrop-filter: blur(12px);
+            margin-bottom: 32px;
+        }
+
+        .nav-tab {
+            padding: 10px 20px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-tab:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-tab.active {
+            background: var(--accent-green-dim);
+            color: var(--accent-green);
+        }
+
+        /* Page Sections */
+        .page-section {
+            display: none;
+        }
+
+        .page-section.active {
+            display: block;
+        }
+
+        /* Welcome */
+        .welcome-section {
+            margin-bottom: 40px;
+        }
+
+        .welcome-text {
+            font-size: 16px;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
+        .user-name {
+            font-size: 36px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-top: 4px;
+            letter-spacing: -0.02em;
+        }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .feature-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-xl);
+            padding: 28px;
+            cursor: pointer;
+            backdrop-filter: blur(16px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-elevated);
+            border-color: var(--accent-green);
+            background: var(--card-bg-hover);
+        }
+
+        .feature-card:hover .card-icon {
+            background: var(--accent-green-dim);
+            color: var(--accent-green);
+        }
+
+        .card-icon {
+            width: 52px;
+            height: 52px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+
+        .card-desc {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* Stats Card */
+        .stats-card {
+            background: linear-gradient(135deg, var(--card-bg) 0%, rgba(34, 197, 94, 0.08) 100%);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            border-radius: var(--radius-xl);
+            padding: 28px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .stats-number {
+            font-size: 56px;
+            font-weight: 700;
+            color: var(--accent-green);
+            line-height: 1;
+            text-shadow: 0 0 40px var(--accent-green-glow);
+        }
+
+        .stats-info h3 {
+            font-size: 15px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .stats-info p {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        /* Calendar */
+        .calendar-section {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-xl);
+            padding: 28px;
+            backdrop-filter: blur(16px);
+            margin-bottom: 24px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .calendar-nav {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .calendar-nav-btn {
+            width: 36px;
+            height: 36px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .calendar-nav-btn:hover {
+            background: var(--accent-green-dim);
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+        }
+
+        .calendar-month-year {
+            font-size: 16px;
+            font-weight: 600;
+            min-width: 160px;
+            text-align: center;
+        }
+
+        .calendar-weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+
+        .calendar-weekday {
+            text-align: center;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-muted);
+            padding: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .calendar-days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-primary);
+            position: relative;
+        }
+
+        .calendar-day:hover:not(.empty):not(.disabled) {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .calendar-day.empty { cursor: default; }
+        .calendar-day.disabled { color: var(--text-muted); opacity: 0.4; cursor: not-allowed; }
+        
+        .calendar-day.selected {
+            background: var(--accent-green);
+            color: var(--bg-dark);
+            font-weight: 600;
+            box-shadow: 0 0 20px var(--accent-green-glow);
+        }
+
+        .calendar-day.in-range {
+            background: var(--accent-green-dim);
+            color: var(--accent-green);
+            border-radius: 0;
+        }
+
+        .calendar-day.range-start {
+            background: var(--accent-green);
+            color: var(--bg-dark);
+            border-radius: var(--radius-md) 0 0 var(--radius-md);
+        }
+
+        .calendar-day.range-end {
+            background: var(--accent-green);
+            color: var(--bg-dark);
+            border-radius: 0 var(--radius-md) var(--radius-md) 0;
+        }
+
+        .calendar-day.today {
+            border: 2px solid var(--accent-green);
+        }
+
+        .calendar-day.period-day {
+            background: rgba(255, 107, 107, 0.15);
+            color: #FF6B6B;
+        }
+
+        .selection-info {
+            display: flex;
+            gap: 24px;
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        .selection-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .selection-label {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .selection-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--accent-green);
+        }
+
+        /* Recent Periods */
+        .recent-periods {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-xl);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .recent-periods h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .period-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .period-item:last-child {
+            border-bottom: none;
+        }
+
+        .period-dates {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .period-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--accent-red-dim);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-red);
+        }
+
+        .period-date-text {
+            font-weight: 500;
+        }
+
+        .period-flow {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        /* Prediction Card */
+        .prediction-card {
+            background: linear-gradient(135deg, var(--card-bg) 0%, rgba(34, 197, 94, 0.05) 100%);
+            border: 1px solid rgba(34, 197, 94, 0.15);
+            border-radius: var(--radius-xl);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .prediction-card h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .prediction-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .prediction-item {
+            text-align: center;
+        }
+
+        .prediction-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--accent-green);
+        }
+
+        .prediction-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Analysis Form */
+        .analysis-form {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-xl);
+            padding: 32px;
+            max-width: 640px;
+        }
+
+        .analysis-form h2 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .analysis-form > p {
+            color: var(--text-muted);
+            margin-bottom: 28px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(5, 6, 10, 0.8);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.2s ease;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--accent-green);
+            box-shadow: 0 0 0 3px var(--accent-green-dim);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239CA3AF' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 40px;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border-radius: var(--radius-md);
+            border: none;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--accent-green);
+            color: var(--bg-dark);
+            box-shadow: 0 4px 16px var(--accent-green-glow);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px var(--accent-green-glow);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--border-light);
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .cards-grid { grid-template-columns: repeat(2, 1fr); }
+            .insights-grid { grid-template-columns: 1fr; }
+            .prediction-grid { grid-template-columns: 1fr; gap: 12px; }
+        }
+
+        @media (max-width: 640px) {
+            .app-container { padding: 24px 20px; }
+            .header { flex-direction: column; gap: 16px; align-items: flex-start; }
+            .cards-grid { grid-template-columns: 1fr; }
+            .stats-card { flex-direction: column; text-align: center; }
+            .form-row { grid-template-columns: 1fr; }
+            .nav-tabs { flex-wrap: wrap; }
+            .footer { flex-wrap: wrap; gap: 16px; }
         }
     </style>
 </head>
 <body>
-    <div id="app"></div>
-    <script src="app.js"></script>
+    <!-- Auth Section -->
+    <div class="auth-container" id="authSection">
+        <!-- Login Form -->
+        <div class="auth-card" id="loginForm">
+            <h2>Welcome to SHE-INTEL</h2>
+            <p class="subtitle">Health Intelligence for Indian Women</p>
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-input" id="loginEmail" placeholder="your@email.com">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <input type="password" class="form-input" id="loginPassword" placeholder="••••••••">
+            </div>
+            <button class="btn btn-primary" onclick="login()">
+                <i data-lucide="log-in" style="width:18px;height:18px"></i>
+                Sign In
+            </button>
+            <p class="auth-switch">Don't have an account? <a onclick="showRegister()">Register</a></p>
+        </div>
+
+        <!-- Register Form -->
+        <div class="auth-card" id="registerForm" style="display:none;">
+            <h2>Create Account</h2>
+            <p class="subtitle">Join SHE-INTEL today</p>
+            <div class="form-group">
+                <label class="form-label">Name</label>
+                <input type="text" class="form-input" id="registerName" placeholder="Your name">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-input" id="registerEmail" placeholder="your@email.com">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <input type="password" class="form-input" id="registerPassword" placeholder="••••••••">
+            </div>
+            <button class="btn btn-primary" onclick="register()">
+                <i data-lucide="user-plus" style="width:18px;height:18px"></i>
+                Create Account
+            </button>
+            <p class="auth-switch">Already have an account? <a onclick="showLogin()">Sign In</a></p>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div class="app-container" id="appSection">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo-section">
+                <div class="logo">SHE-INTEL</div>
+                <div class="logo-subtitle">Health Intelligence</div>
+            </div>
+            <div class="header-right">
+                <select class="location-select" id="locationSelect" onchange="App.setState(this.value)">
+                    <option value="Goa">📍 Goa</option>
+                    <option value="Maharashtra">📍 Maharashtra</option>
+                    <option value="Karnataka">📍 Karnataka</option>
+                    <option value="Kerala">📍 Kerala</option>
+                    <option value="Tamil Nadu">📍 Tamil Nadu</option>
+                    <option value="Delhi">📍 Delhi</option>
+                    <option value="Uttar Pradesh">📍 Uttar Pradesh</option>
+                    <option value="West Bengal">📍 West Bengal</option>
+                </select>
+                <div class="profile-section">
+                    <div class="profile-avatar" id="userAvatar">D</div>
+                    <span class="profile-name" id="userName">Demo User</span>
+                    <button class="logout-btn" onclick="App.logout()">Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="nav-tabs">
+            <button class="nav-tab active" onclick="App.navigate('dashboard')">
+                <i data-lucide="layout-dashboard" style="width:16px;height:16px"></i>
+                Dashboard
+            </button>
+            <button class="nav-tab" onclick="App.navigate('calendar')">
+                <i data-lucide="calendar-days" style="width:16px;height:16px"></i>
+                Calendar
+            </button>
+            <button class="nav-tab" onclick="App.navigate('analysis')">
+                <i data-lucide="activity" style="width:16px;height:16px"></i>
+                Analysis
+            </button>
+        </nav>
+
+        <!-- Dashboard Page -->
+        <div class="page-section active" id="dashboardPage">
+            <section class="welcome-section">
+                <div class="welcome-text">Welcome,</div>
+                <div class="user-name" id="dashboardUserName">Demo User</div>
+            </section>
+
+            <section class="cards-grid">
+                <div class="feature-card" onclick="App.navigate('calendar')">
+                    <div class="card-icon"><i data-lucide="calendar-days" style="width:24px;height:24px"></i></div>
+                    <div class="card-title">Calendar</div>
+                    <div class="card-desc">View & manage period history</div>
+                </div>
+                <div class="feature-card" onclick="App.navigate('analysis')">
+                    <div class="card-icon"><i data-lucide="activity" style="width:24px;height:24px"></i></div>
+                    <div class="card-title">Health Analysis</div>
+                    <div class="card-desc">Run ML-powered health analysis</div>
+                </div>
+                <div class="feature-card" onclick="App.openPeriodModal()">
+                    <div class="card-icon"><i data-lucide="plus" style="width:24px;height:24px"></i></div>
+                    <div class="card-title">Log Period</div>
+                    <div class="card-desc">Add new period entry</div>
+                </div>
+            </section>
+
+            <section class="stats-card">
+                <div class="stats-number" id="periodsCount">0</div>
+                <div class="stats-info">
+                    <h3>Periods Logged</h3>
+                    <p>Total tracked cycles</p>
+                </div>
+            </section>
+
+            <!-- Prediction -->
+            <div class="prediction-card" id="predictionCard">
+                <h3><i data-lucide="sparkles" style="width:18px;height:18px;color:var(--accent-green)"></i> Cycle Predictions</h3>
+                <div class="prediction-grid">
+                    <div class="prediction-item">
+                        <div class="prediction-value" id="avgCycle">--</div>
+                        <div class="prediction-label">Avg Cycle (days)</div>
+                    </div>
+                    <div class="prediction-item">
+                        <div class="prediction-value" id="nextPeriod">--</div>
+                        <div class="prediction-label">Next Period</div>
+                    </div>
+                    <div class="prediction-item">
+                        <div class="prediction-value" id="ovulation">--</div>
+                        <div class="prediction-label">Ovulation Window</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calendar Page -->
+        <div class="page-section" id="calendarPage">
+            <section class="calendar-section">
+                <div class="section-header">
+                    <div class="section-title">Select Period Dates</div>
+                    <div class="calendar-nav">
+                        <button class="calendar-nav-btn" onclick="Calendar.prevMonth()">
+                            <i data-lucide="chevron-left" style="width:18px;height:18px"></i>
+                        </button>
+                        <div class="calendar-month-year" id="monthYear">April 2026</div>
+                        <button class="calendar-nav-btn" onclick="Calendar.nextMonth()">
+                            <i data-lucide="chevron-right" style="width:18px;height:18px"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="calendar-weekdays">
+                    <div class="calendar-weekday">Sun</div>
+                    <div class="calendar-weekday">Mon</div>
+                    <div class="calendar-weekday">Tue</div>
+                    <div class="calendar-weekday">Wed</div>
+                    <div class="calendar-weekday">Thu</div>
+                    <div class="calendar-weekday">Fri</div>
+                    <div class="calendar-weekday">Sat</div>
+                </div>
+                <div class="calendar-days" id="calendarDays"></div>
+                <div class="selection-info">
+                    <div class="selection-item">
+                        <span class="selection-label">Start Date:</span>
+                        <span class="selection-value" id="startDateDisplay">Not selected</span>
+                    </div>
+                    <div class="selection-item">
+                        <span class="selection-label">End Date:</span>
+                        <span class="selection-value" id="endDateDisplay">Not selected</span>
+                    </div>
+                </div>
+            </section>
+
+            <div class="recent-periods">
+                <h3>Recent Periods</h3>
+                <div id="recentPeriodsList">
+                    <div class="loading"><div class="spinner"></div>Loading...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analysis Page -->
+        <div class="page-section" id="analysisPage">
+            <div class="analysis-form">
+                <h2>Health Analysis</h2>
+                <p>Enter your symptoms for AI-powered health insights</p>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Age</label>
+                        <select class="form-select" id="analysisAge">
+                            <option value="">Select age</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">State</label>
+                        <select class="form-select" id="analysisState"></select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Period Start</label>
+                        <input type="date" class="form-input" id="analysisPeriodStart">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Period End</label>
+                        <input type="date" class="form-input" id="analysisPeriodEnd">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Symptoms</label>
+                    <textarea class="form-textarea" id="analysisSymptoms" placeholder="Describe your symptoms in detail... (e.g., irregular periods, weight gain, excessive hair growth, acne, mood swings, fatigue)"></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button class="btn btn-primary" onclick="Analysis.run()">
+                        <i data-lucide="brain" style="width:18px;height:18px"></i>
+                        Run Analysis
+                    </button>
+                    <button class="btn btn-secondary" onclick="Analysis.loadDemo()">
+                        <i data-lucide="play" style="width:18px;height:18px"></i>
+                        Load Demo
+                    </button>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="results-section" id="resultsSection">
+                <div class="risk-gauge">
+                    <div class="gauge-container">
+                        <svg class="gauge-svg" width="200" height="200" viewBox="0 0 200 200">
+                            <circle cx="100" cy="100" r="85" fill="none" stroke="var(--border-subtle)" stroke-width="14"/>
+                            <circle id="riskCircle" cx="100" cy="100" r="85" fill="none" stroke="var(--accent-green)" stroke-width="14" stroke-linecap="round" stroke-dasharray="0 534" transform="rotate(-90 100 100)"/>
+                        </svg>
+                        <div class="gauge-value">
+                            <span class="percent" id="riskPercent">0%</span>
+                        </div>
+                    </div>
+                    <div class="risk-label" id="riskLabel">Normal</div>
+                </div>
+
+                <p class="summary-text" id="analysisSummary"></p>
+
+                <div class="insights-grid">
+                    <div class="insight-card">
+                        <h4><i data-lucide="map-pin" style="width:18px;height:18px;color:var(--accent-green)"></i> India Context</h4>
+                        <ul id="indiaContext"></ul>
+                    </div>
+                    <div class="insight-card">
+                        <h4><i data-lucide="wind" style="width:18px;height:18px;color:var(--accent-green)"></i> Air Quality</h4>
+                        <div class="aqi-display">
+                            <span class="aqi-value" id="aqiValue">--</span>
+                            <div>
+                                <div id="aqiStatus">--</div>
+                                <div style="font-size:12px;color:var(--text-muted)" id="aqiCity">--</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="insight-card">
+                        <h4><i data-lucide="users" style="width:18px;height:18px;color:var(--accent-green)"></i> Community Data</h4>
+                        <p style="font-size:13px;color:var(--text-muted)" id="communityState"></p>
+                        <div class="community-bar">
+                            <div class="community-bar-fill" id="communityBar" style="width:0%"></div>
+                        </div>
+                        <p style="font-size:12px;color:var(--text-muted)" id="communityPercent"></p>
+                    </div>
+                    <div class="insight-card">
+                        <h4><i data-lucide="flask-conical" style="width:18px;height:18px;color:var(--warning)"></i> Research Gap</h4>
+                        <p style="font-size:13px;color:var(--text-secondary)" id="researchGap"></p>
+                    </div>
+                </div>
+
+                <div class="insight-card" id="labTestsCard">
+                    <h4><i data-lucide="test-tube" style="width:18px;height:18px;color:var(--accent-green)"></i> Lab Test Recommendations</h4>
+                    <ul id="labTests"></ul>
+                </div>
+
+                <div class="insight-card" id="schemesCard">
+                    <h4><i data-lucide="landmark" style="width:18px;height:18px;color:var(--accent-red)"></i> Government Schemes</h4>
+                    <ul id="schemes"></ul>
+                </div>
+
+                <div class="action-card">
+                    <h4><i data-lucide="check-circle" style="width:18px;height:18px;color:var(--accent-green)"></i> Recommended Actions</h4>
+                    <div id="actions"></div>
+                </div>
+
+                <div class="disclaimer-box">
+                    <i data-lucide="alert-triangle" style="width:20px;height:20px"></i>
+                    <p><strong>Disclaimer:</strong> This analysis is for informational purposes only and does not constitute a medical diagnosis. Please consult a qualified healthcare professional for proper evaluation and treatment.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <a href="#" class="footer-link">Privacy Policy</a>
+            <a href="#" class="footer-link">Terms of Service</a>
+            <a href="#" class="footer-link">Medical Disclaimer</a>
+        </footer>
+        <div class="footer-disclaimer">
+            SHE-INTEL INDIA © 2026 | This tool provides health insights, not medical advice. Consult a healthcare professional.
+        </div>
+    </div>
+
+    <!-- Period Modal -->
+    <div class="modal-overlay" id="periodModal" style="display: none;">
+        <div style="background:var(--card-bg);border:1px solid var(--glass-border);border-radius:var(--radius-xl);padding:32px;width:100%;max-width:480px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;">
+                <h2 style="font-size:20px;font-weight:600;">Log Period</h2>
+                <button onclick="App.closePeriodModal()" style="width:36px;height:36px;background:rgba(255,255,255,0.05);border:none;border-radius:var(--radius-sm);color:var(--text-secondary);cursor:pointer;">
+                    <i data-lucide="x" style="width:18px;height:18px"></i>
+                </button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Start Date</label>
+                <input type="date" class="form-input" id="modalStartDate">
+            </div>
+            <div class="form-group">
+                <label class="form-label">End Date</label>
+                <input type="date" class="form-input" id="modalEndDate">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Flow Level</label>
+                <select class="form-select" id="modalFlow">
+                    <option value="Light">Light</option>
+                    <option value="Medium" selected>Medium</option>
+                    <option value="Heavy">Heavy</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Symptoms (Optional)</label>
+                <textarea class="form-textarea" id="modalSymptoms" placeholder="Any symptoms to note..."></textarea>
+            </div>
+            <div style="display:flex;gap:14px;margin-top:28px;">
+                <button class="btn btn-secondary" style="flex:1" onclick="App.closePeriodModal()">Cancel</button>
+                <button class="btn btn-primary" style="flex:1" onclick="App.savePeriod()">
+                    <i data-lucide="check" style="width:16px;height:16px"></i>
+                    Save
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Auth
+        const Auth = {
+            token: localStorage.getItem('token'),
+            user: null,
+
+            async login(email, password) {
+                const res = await fetch('/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                if (!res.ok) throw new Error('Login failed');
+                const data = await res.json();
+                this.token = data.access_token;
+                localStorage.setItem('token', data.access_token);
+                await this.getUser();
+            },
+
+            async register(name, email, password) {
+                console.log('Attempting registration with:', { name, email });
+                const res = await fetch('/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, password })
+                });
+                console.log('Registration response status:', res.status);
+                if (!res.ok) {
+                    const errorData = await res.json().catch(() => ({ detail: 'Unknown error' }));
+                    throw new Error(errorData.detail || 'Registration failed');
+                }
+                const data = await res.json();
+                console.log('Registration successful:', data);
+                await this.login(email, password);
+            },
+
+            async getUser() {
+                if (!this.token) return;
+                const res = await fetch('/auth/me', {
+                    headers: { 'Authorization': `Bearer ${this.token}` }
+                });
+                if (res.ok) {
+                    this.user = await res.json();
+                    localStorage.setItem('userName', this.user.name);
+                }
+            },
+
+            logout() {
+                this.token = null;
+                this.user = null;
+                localStorage.removeItem('token');
+                localStorage.removeItem('userName');
+                showAuth();
+            },
+
+            async loadUserData() {
+                await this.getUser();
+                if (this.user) {
+                    document.getElementById('userName').textContent = this.user.name;
+                    document.getElementById('dashboardUserName').textContent = this.user.name;
+                    document.getElementById('userAvatar').textContent = this.user.name.charAt(0).toUpperCase();
+                }
+            }
+        };
+
+        // Calendar
+        const Calendar = {
+            currentDate: new Date(),
+            selectedStart: null,
+            selectedEnd: null,
+            periods: [],
+
+            async load() {
+                try {
+                    const res = await fetch('/periods', {
+                        headers: { 'Authorization': `Bearer ${Auth.token}` }
+                    });
+                    this.periods = res.ok ? await res.json() : [];
+                    this.render();
+                    this.renderRecentPeriods();
+                } catch (e) {
+                    console.error('Failed to load periods:', e);
+                }
+            },
+
+            render() {
+                const year = this.currentDate.getFullYear();
+                const month = this.currentDate.getMonth();
+                const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+                document.getElementById('monthYear').textContent = `${monthNames[month]} ${year}`;
+
+                const firstDay = new Date(year, month, 1).getDay();
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+                const today = new Date();
+
+                let html = '';
+                for (let i = 0; i < firstDay; i++) html += '<div class="calendar-day empty"></div>';
+
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+                    const isToday = day === today.getDate() && month === today.getMonth() && year === today.getFullYear();
+                    
+                    // Check if this day is in any period
+                    const isPeriodDay = this.periods.some(p => {
+                        const start = new Date(p.start_date);
+                        const end = new Date(p.end_date);
+                        const d = new Date(year, month, day);
+                        return d >= start && d <= end;
+                    });
+
+                    const isSelected = this.selectedStart === dateStr || this.selectedEnd === dateStr;
+                    const isInRange = this.selectedStart && this.selectedEnd && dateStr > this.selectedStart && dateStr < this.selectedEnd;
+                    const isRangeStart = this.selectedStart === dateStr;
+                    const isRangeEnd = this.selectedEnd === dateStr;
+
+                    let classes = 'calendar-day';
+                    if (isSelected) classes += ' selected';
+                    if (isInRange) classes += ' in-range';
+                    if (isRangeStart) classes += ' range-start';
+                    if (isRangeEnd) classes += ' range-end';
+                    if (isToday && !isSelected) classes += ' today';
+                    if (isPeriodDay && !isSelected) classes += ' period-day';
+
+                    html += `<div class="${classes}" onclick="Calendar.selectDate('${dateStr}')">${day}</div>`;
+                }
+                document.getElementById('calendarDays').innerHTML = html;
+                this.updateSelectionDisplay();
+                if (window.lucide) window.lucide.createIcons();
+            },
+
+            selectDate(dateStr) {
+                if (!this.selectedStart || (this.selectedStart && this.selectedEnd)) {
+                    this.selectedStart = dateStr;
+                    this.selectedEnd = null;
+                } else {
+                    if (dateStr < this.selectedStart) {
+                        this.selectedEnd = this.selectedStart;
+                        this.selectedStart = dateStr;
+                    } else {
+                        this.selectedEnd = dateStr;
+                    }
+                }
+                this.render();
+                document.getElementById('modalStartDate').value = this.selectedStart || '';
+                document.getElementById('modalEndDate').value = this.selectedEnd || '';
+            },
+
+            updateSelectionDisplay() {
+                const format = (d) => {
+                    if (!d) return 'Not selected';
+                    const date = new Date(d + 'T00:00:00');
+                    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                };
+                document.getElementById('startDateDisplay').textContent = format(this.selectedStart);
+                document.getElementById('endDateDisplay').textContent = format(this.selectedEnd);
+            },
+
+            renderRecentPeriods() {
+                const container = document.getElementById('recentPeriodsList');
+                if (!this.periods.length) {
+                    container.innerHTML = '<p style="color:var(--text-muted);padding:20px 0;text-align:center">No periods logged yet</p>';
+                    return;
+                }
+                container.innerHTML = this.periods.slice(0, 5).map(p => `
+                    <div class="period-item">
+                        <div class="period-dates">
+                            <div class="period-icon"><i data-lucide="droplet" style="width:18px;height:18px"></i></div>
+                            <div>
+                                <div class="period-date-text">${p.start_date} → ${p.end_date}</div>
+                                <div class="period-flow">${p.flow_level || 'Medium'} Flow</div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                if (window.lucide) window.lucide.createIcons();
+            },
+
+            prevMonth() { this.currentDate.setMonth(this.currentDate.getMonth() - 1); this.render(); },
+            nextMonth() { this.currentDate.setMonth(this.currentDate.getMonth() + 1); this.render(); }
+        };
+
+        // Analysis
+        const Analysis = {
+            async loadStates() {
+                const res = await fetch('/states');
+                const states = await res.json();
+                const select = document.getElementById('analysisState');
+                select.innerHTML = '<option value="">Select state</option>' + states.map(s => `<option value="${s}">${s}</option>`).join('');
+            },
+
+            loadDemo() {
+                document.getElementById('analysisAge').value = '25';
+                document.getElementById('analysisState').value = document.getElementById('locationSelect').value || 'Maharashtra';
+                document.getElementById('analysisSymptoms').value = 'Irregular periods, weight gain, excessive hair growth, acne, mood swings, fatigue';
+            },
+
+            async run() {
+                const data = {
+                    age: document.getElementById('analysisAge').value,
+                    state: document.getElementById('analysisState').value,
+                    period_start: document.getElementById('analysisPeriodStart').value,
+                    period_end: document.getElementById('analysisPeriodEnd').value,
+                    symptoms: document.getElementById('analysisSymptoms').value
+                };
+
+                if (!data.state || !data.symptoms) {
+                    alert('Please fill in state and symptoms');
+                    return;
+                }
+
+                try {
+                    const res = await fetch('/analyze', {
+                        method: 'POST',
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${Auth.token}`
+                        },
+                        body: JSON.stringify(data)
+                    });
+                    if (!res.ok) {
+                        const error = await res.json();
+                        alert('Analysis failed: ' + (error.detail || 'Unknown error'));
+                        return;
+                    }
+                    const result = await res.json();
+                    this.showResults(result);
+                } catch (e) {
+                    alert('Analysis failed: ' + e.message);
+                }
+            },
+
+            showResults(result) {
+                document.getElementById('resultsSection').classList.add('active');
+                
+                const { top_risk, india_context, aqi, community_data, recommended_actions, lab_tests, government_schemes, analysis_summary } = result;
+                const riskPercent = top_risk ? Math.round(top_risk.confidence) : 0;
+                const riskLabel = top_risk ? `${top_risk.condition} – ${riskPercent > 60 ? 'High' : riskPercent > 40 ? 'Medium' : 'Low'} Risk` : 'No significant risk';
+
+                // Risk gauge animation
+                const circumference = 2 * Math.PI * 85;
+                const offset = circumference - (riskPercent / 100) * circumference;
+                document.getElementById('riskCircle').setAttribute('stroke-dasharray', `${offset} ${circumference}`);
+                document.getElementById('riskPercent').textContent = riskPercent + '%';
+                document.getElementById('riskLabel').textContent = riskLabel;
+                document.getElementById('riskLabel').style.color = riskPercent > 40 ? 'var(--accent-red)' : 'var(--accent-green)';
+                document.getElementById('analysisSummary').textContent = analysis_summary;
+
+                // India context
+                document.getElementById('indiaContext').innerHTML = `
+                    <li><strong>Iron:</strong> ${india_context.iron_tips || 'Consume leafy greens, legumes'}</li>
+                    <li><strong>Vitamin D:</strong> ${india_context.vitamin_d_tips || 'Sun exposure, fortified foods'}</li>
+                    <li><strong>General:</strong> ${india_context.general_tips || 'Balanced diet, regular exercise'}</li>
+                `;
+
+                // AQI
+                const aqiEl = document.getElementById('aqiValue');
+                aqiEl.textContent = aqi.aqi;
+                aqiEl.className = 'aqi-value ' + (aqi.aqi < 50 ? 'aqi-good' : aqi.aqi < 100 ? 'aqi-moderate' : 'aqi-poor');
+                document.getElementById('aqiStatus').textContent = aqi.status;
+                document.getElementById('aqiCity').textContent = aqi.city;
+
+                // Community
+                document.getElementById('communityState').textContent = `Prevalence in ${community_data.state}`;
+                document.getElementById('communityBar').style.width = community_data.prevalence + '%';
+                document.getElementById('communityPercent').textContent = community_data.prevalence + '% of women in your region';
+
+                // Research gap
+                document.getElementById('researchGap').textContent = `Limited clinical studies on ${top_risk?.condition || 'this condition'} specific to Indian women. More region-specific research needed.`;
+
+                // Lab tests
+                if (lab_tests) {
+                    document.getElementById('labTestsCard').style.display = 'block';
+                    document.getElementById('labTests').innerHTML = `
+                        <li>${lab_tests.recommended_test || 'Full hormone panel (LH, FSH, Prolactin, Testosterone)'}</li>
+                        <li>${lab_tests.alt_test || 'Pelvic ultrasound for cyst detection'}</li>
+                    `;
+                } else {
+                    document.getElementById('labTestsCard').style.display = 'none';
+                }
+
+                // Schemes
+                if (government_schemes?.length) {
+                    document.getElementById('schemesCard').style.display = 'block';
+                    document.getElementById('schemes').innerHTML = government_schemes.map(s => `<li>${s}</li>`).join('');
+                } else {
+                    document.getElementById('schemesCard').style.display = 'none';
+                }
+
+                // Actions
+                document.getElementById('actions').innerHTML = recommended_actions.map(a => `
+                    <div class="action-item">
+                        <i data-lucide="check-circle" style="color:var(--accent-green);width:18px;height:18px;flex-shrink:0;margin-top:2px"></i>
+                        <span>${a}</span>
+                    </div>
+                `).join('');
+
+                if (window.lucide) window.lucide.createIcons();
+                
+                // Scroll to results
+                document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+            }
+        };
+
+        // App
+        const App = {
+            async init() {
+                // Load age dropdown
+                const ageSelect = document.getElementById('analysisAge');
+                ageSelect.innerHTML = '<option value="">Select age</option>' + [...Array(38)].map((_,i) => `<option value="${i+18}">${i+18}</option>`).join('');
+
+                // Check auth
+                await Auth.loadUserData();
+                
+                if (Auth.token) {
+                    this.showApp();
+                } else {
+                    showAuth();
+                }
+
+                if (window.lucide) window.lucide.createIcons();
+            },
+
+            showApp() {
+                document.getElementById('authSection').classList.remove('active');
+                document.getElementById('appSection').classList.add('active');
+                this.loadDashboardData();
+            },
+
+            async loadDashboardData() {
+                // Load periods count
+                try {
+                    const res = await fetch('/periods', {
+                        headers: { 'Authorization': `Bearer ${Auth.token}` }
+                    });
+                    const periods = res.ok ? await res.json() : [];
+                    document.getElementById('periodsCount').textContent = periods.length;
+
+                    // Load prediction
+                    const predRes = await fetch('/periods/prediction', {
+                        headers: { 'Authorization': `Bearer ${Auth.token}` }
+                    });
+                    if (predRes.ok) {
+                        const pred = await predRes.json();
+                        if (pred.avg_cycle_length) {
+                            document.getElementById('avgCycle').textContent = pred.avg_cycle_length;
+                            document.getElementById('nextPeriod').textContent = pred.next_period ? new Date(pred.next_period).toLocaleDateString('en-US', {month:'short', day:'numeric'}) : '--';
+                            document.getElementById('ovulation').textContent = pred.ovulation_window ? pred.ovulation_window.split(' - ')[0] : '--';
+                        }
+                    }
+                } catch (e) {
+                    console.error('Failed to load dashboard data:', e);
+                }
+            },
+
+            navigate(page) {
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
+                
+                document.querySelector(`.nav-tab:nth-child(${page === 'dashboard' ? 1 : page === 'calendar' ? 2 : 3})`).classList.add('active');
+                document.getElementById(page + 'Page').classList.add('active');
+                document.getElementById('resultsSection').classList.remove('active');
+
+                if (page === 'calendar') Calendar.load();
+                if (page === 'analysis') Analysis.loadStates();
+                
+                // Re-render icons after navigation
+                if (window.lucide) window.lucide.createIcons();
+            },
+
+            setState(state) {
+                // Update analysis state dropdown
+                const select = document.getElementById('analysisState');
+                select.value = state;
+            },
+
+            openPeriodModal() {
+                document.getElementById('periodModal').style.display = 'flex';
+                document.getElementById('modalStartDate').value = Calendar.selectedStart || '';
+                document.getElementById('modalEndDate').value = Calendar.selectedEnd || '';
+                if (window.lucide) window.lucide.createIcons();
+            },
+
+            closePeriodModal() {
+                document.getElementById('periodModal').style.display = 'none';
+            },
+
+            async savePeriod() {
+                const flowLevel = document.getElementById('modalFlow').value;
+                const data = {
+                    start_date: document.getElementById('modalStartDate').value,
+                    end_date: document.getElementById('modalEndDate').value,
+                    flow_level: flowLevel.toLowerCase(), // Backend expects lowercase
+                    symptoms: document.getElementById('modalSymptoms').value
+                };
+
+                if (!data.start_date || !data.end_date) {
+                    alert('Please select start and end dates');
+                    return;
+                }
+
+                try {
+                    await fetch('/periods', {
+                        method: 'POST',
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${Auth.token}`
+                        },
+                        body: JSON.stringify(data)
+                    });
+                    this.closePeriodModal();
+                    Calendar.selectedStart = data.start_date;
+                    Calendar.selectedEnd = data.end_date;
+                    Calendar.load();
+                    this.loadDashboardData();
+                    alert('Period logged successfully!');
+                } catch (e) {
+                    alert('Failed to save: ' + e.message);
+                }
+            },
+
+            logout() {
+                Auth.logout();
+            }
+        };
+
+        // Auth helpers
+        function showAuth() {
+            document.getElementById('authSection').classList.add('active');
+            document.getElementById('appSection').classList.remove('active');
+            showLogin();
+        }
+
+        function showLogin() {
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('registerForm').style.display = 'none';
+        }
+
+        function showRegister() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'block';
+        }
+
+        async function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!email || !password) {
+                alert('Please enter email and password');
+                return;
+            }
+            
+            // Show loading
+            const btn = event.target;
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<span class="spinner"></span> Signing in...';
+            btn.disabled = true;
+            
+            try {
+                const res = await fetch('/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                if (!res.ok) {
+                    const error = await res.json().catch(() => ({ detail: 'Login failed' }));
+                    alert('Login failed: ' + (error.detail || 'Invalid credentials'));
+                    btn.innerHTML = originalHTML;
+                    btn.disabled = false;
+                    return;
+                }
+                
+                const data = await res.json();
+                Auth.token = data.access_token;
+                localStorage.setItem('token', data.access_token);
+                
+                // Get user info
+                const userRes = await fetch('/auth/me', {
+                    headers: { 'Authorization': `Bearer ${Auth.token}` }
+                });
+                if (userRes.ok) {
+                    Auth.user = await userRes.json();
+                    localStorage.setItem('userName', Auth.user.name);
+                }
+                
+                App.showApp();
+            } catch (e) {
+                const msg = e.message || 'Unknown error';
+                if (msg.includes('Failed to fetch') || msg.includes('NetworkError')) {
+                    alert('Cannot connect to backend. Make sure:\n1. Backend is running: cd backend && python3 main.py\n2. Open app via: http://localhost:8001/app');
+                } else {
+                    alert('Login failed: ' + msg);
+                }
+                btn.innerHTML = originalHTML;
+                btn.disabled = false;
+            }
+        }
+
+        async function register() {
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            
+            if (!name || !email || !password) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            // Show loading
+            const btn = event.target;
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<span class="spinner"></span> Creating...';
+            btn.disabled = true;
+            
+            try {
+                // Registration
+                const res = await fetch('/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, password })
+                });
+                
+                if (!res.ok) {
+                    const error = await res.json().catch(() => ({ detail: 'Registration failed' }));
+                    alert('Registration failed: ' + (error.detail || 'Unknown error'));
+                    btn.innerHTML = originalHTML;
+                    btn.disabled = false;
+                    return;
+                }
+                
+                // Login after registration
+                const loginRes = await fetch('/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                if (!loginRes.ok) {
+                    alert('Registration succeeded but login failed. Please try logging in.');
+                    btn.innerHTML = originalHTML;
+                    btn.disabled = false;
+                    return;
+                }
+                
+                const data = await loginRes.json();
+                Auth.token = data.access_token;
+                localStorage.setItem('token', data.access_token);
+                
+                // Get user info
+                const userRes = await fetch('/auth/me', {
+                    headers: { 'Authorization': `Bearer ${Auth.token}` }
+                });
+                if (userRes.ok) {
+                    Auth.user = await userRes.json();
+                    localStorage.setItem('userName', Auth.user.name);
+                }
+                
+                App.showApp();
+            } catch (e) {
+                // CORS or network error - likely because HTML is opened directly (file://)
+                const msg = e.message || 'Unknown error';
+                if (msg.includes('Failed to fetch') || msg.includes('NetworkError')) {
+                    alert('Cannot connect to backend. Make sure:\n1. Backend is running: cd backend && python3 main.py\n2. Open app via: http://localhost:8001/app (not file://)');
+                } else {
+                    alert('Registration failed: ' + msg);
+                }
+                btn.innerHTML = originalHTML;
+                btn.disabled = false;
+            }
+        }
+
+        // Modal close on outside click
+        document.getElementById('periodModal').addEventListener('click', function(e) {
+            if (e.target === this) App.closePeriodModal();
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => App.init());
+    </script>
 </body>
 </html>
