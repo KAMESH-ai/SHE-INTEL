@@ -31,12 +31,13 @@ app.include_router(analysis.router)
 FRONTEND_DIR = Path(__file__).resolve().parents[2] / "frontend"
 
 
-@app.get("/app", include_in_schema=False)
-def frontend_app():
-    index_file = FRONTEND_DIR / "index.html"
-    if index_file.exists():
-        return FileResponse(index_file)
-    return {"message": "Frontend not found"}
+@app.get("/health", tags=["health"])
+def health():
+    return {
+        "message": "SHE-INTEL INDIA API",
+        "status": "running",
+        "frontend": "/",
+    }
 
 
 @app.get("/app.js", include_in_schema=False)
@@ -55,10 +56,10 @@ def frontend_css():
     return {"message": "Frontend asset not found"}
 
 
+@app.get("/app", include_in_schema=False)
 @app.get("/")
 def root():
-    return {
-        "message": "SHE-INTEL INDIA API",
-        "status": "running",
-        "frontend": "/app",
-    }
+    index_file = FRONTEND_DIR / "index.html"
+    if index_file.exists():
+        return FileResponse(index_file)
+    return {"message": "SHE-INTEL INDIA API", "status": "running", "docs": "/docs"}

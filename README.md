@@ -56,23 +56,13 @@ uvicorn app.main:app --host 0.0.0.0 --port 8002
 
 Backend URL: http://localhost:8002
 
-2. Start frontend (new terminal):
+The frontend is served directly by the backend at the root URL: http://localhost:8002/
 
-Option A (Node):
-
-```bash
-cd frontend
-npx serve -l 5173
-```
-
-Option B (Python):
-
-```bash
-cd frontend
-python3 -m http.server 5173
-```
-
-Frontend URL: http://localhost:5173
+Additional endpoints:
+- `GET /` — Frontend (index.html)
+- `GET /app` — Frontend alias
+- `GET /health` — API health / status JSON
+- `GET /docs` — Interactive API documentation
 
 ## Run Tests
 
