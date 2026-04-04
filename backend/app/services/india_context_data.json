@@ -1,0 +1,194 @@
+{
+    "state_profiles": {
+        "tamil nadu": {
+            "city": "Chennai",
+            "latitude": 13.0827,
+            "longitude": 80.2707,
+            "diet": [
+                "ragi",
+                "drumstick leaves",
+                "spinach",
+                "lentils",
+                "jaggery"
+            ],
+            "aqi_note": "Coastal metro pollution and humidity can worsen fatigue on high-AQI days."
+        },
+        "karnataka": {
+            "city": "Bengaluru",
+            "latitude": 12.9716,
+            "longitude": 77.5946,
+            "diet": [
+                "ragi",
+                "millets",
+                "greens",
+                "lentils",
+                "curd"
+            ],
+            "aqi_note": "Traffic density and seasonal dust can trigger symptom spikes for sensitive users."
+        },
+        "maharashtra": {
+            "city": "Mumbai",
+            "latitude": 19.076,
+            "longitude": 72.8777,
+            "diet": [
+                "sprouts",
+                "dal",
+                "leafy greens",
+                "peanuts",
+                "citrus fruits"
+            ],
+            "aqi_note": "Urban congestion can raise respiratory strain and fatigue."
+        },
+        "delhi": {
+            "city": "Delhi",
+            "latitude": 28.6139,
+            "longitude": 77.209,
+            "diet": [
+                "spinach",
+                "lentils",
+                "seasonal fruits",
+                "beetroot",
+                "nuts"
+            ],
+            "aqi_note": "High pollution periods may increase fatigue and breathing discomfort."
+        },
+        "kerala": {
+            "city": "Thiruvananthapuram",
+            "latitude": 8.5241,
+            "longitude": 76.9366,
+            "diet": [
+                "leafy greens",
+                "fish",
+                "coconut-based meals",
+                "lentils",
+                "banana"
+            ],
+            "aqi_note": "Humidity can make sleep quality and fatigue tracking especially important."
+        },
+        "west bengal": {
+            "city": "Kolkata",
+            "latitude": 22.5726,
+            "longitude": 88.3639,
+            "diet": [
+                "greens",
+                "lentils",
+                "fish",
+                "jaggery",
+                "beetroot"
+            ],
+            "aqi_note": "Seasonal air-quality shifts can affect tiredness and breathing patterns."
+        }
+    },
+    "national_schemes": [
+        "Ayushman Bharat: check eligibility for subsidized healthcare coverage.",
+        "National Health Mission: district-level maternal and primary care services.",
+        "Anaemia Mukt Bharat: iron and nutrition awareness for women and adolescents."
+    ],
+    "state_schemes": {
+        "tamil nadu": [
+            "Tamil Nadu Chief Minister's Comprehensive Health Insurance Scheme.",
+            "State nutrition and maternal health support programs."
+        ],
+        "karnataka": [
+            "Karnataka Arogya coverage support and state hospital assistance programs."
+        ],
+        "maharashtra": [
+            "Mahatma Jyotiba Phule Jan Arogya Yojana."
+        ],
+        "delhi": [
+            "Delhi Arogya Kosh and state hospital support schemes."
+        ]
+    },
+    "lab_base_costs": {
+        "iron_deficiency_anemia": [
+            {
+                "test": "CBC",
+                "low": 250,
+                "high": 600
+            },
+            {
+                "test": "Ferritin",
+                "low": 700,
+                "high": 1600
+            },
+            {
+                "test": "Iron profile",
+                "low": 800,
+                "high": 1800
+            }
+        ],
+        "pcos": [
+            {
+                "test": "Ultrasound",
+                "low": 800,
+                "high": 2500
+            },
+            {
+                "test": "LH/FSH",
+                "low": 600,
+                "high": 1800
+            },
+            {
+                "test": "Hormone panel",
+                "low": 1500,
+                "high": 4000
+            }
+        ],
+        "thyroid_disorder": [
+            {
+                "test": "TSH",
+                "low": 300,
+                "high": 700
+            },
+            {
+                "test": "T3/T4",
+                "low": 500,
+                "high": 1200
+            },
+            {
+                "test": "Thyroid profile",
+                "low": 800,
+                "high": 2000
+            }
+        ],
+        "vitamin_d_deficiency": [
+            {
+                "test": "Vitamin D",
+                "low": 900,
+                "high": 2200
+            },
+            {
+                "test": "Calcium",
+                "low": 200,
+                "high": 600
+            }
+        ],
+        "diabetes_risk": [
+            {
+                "test": "Fasting blood sugar",
+                "low": 150,
+                "high": 400
+            },
+            {
+                "test": "HbA1c",
+                "low": 350,
+                "high": 900
+            }
+        ],
+        "normal": [
+            {
+                "test": "General check-up",
+                "low": 300,
+                "high": 1200
+            }
+        ]
+    },
+    "bias_notes": {
+        "iron_deficiency_anemia": "Research and screening on anemia in women can be under-prioritized, so repeated symptoms should be documented and checked.",
+        "pcos": "PCOS symptoms are often dismissed as 'just irregular periods'; tracking cycle data helps reduce bias in symptom interpretation.",
+        "thyroid_disorder": "Thyroid symptoms in women are frequently confused with stress or lifestyle issues, so pattern tracking matters.",
+        "vitamin_d_deficiency": "Fatigue and aches may be normalized in women, so low-sunlight and pain patterns should be noted.",
+        "diabetes_risk": "Women may report diabetes symptoms later than men, so thirst and urination trends should be monitored early.",
+        "normal": "No strong bias-sensitive risk signal detected from the current input."
+    }
+}

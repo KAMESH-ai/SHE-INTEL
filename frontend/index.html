@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SHE-INTEL INDIA</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="app">
+    <div id="toast-container" class="toast-container" aria-live="polite"></div>
+    <!-- Login Page -->
+    <div id="login-page" class="page hidden">
+      <div class="auth-container">
+        <div class="auth-card">
+          <div class="auth-logo">
+            <div class="logo-icon">✦</div>
+            <span class="logo-text">SHE-INTEL</span>
+          </div>
+          <h1 class="auth-title">Welcome back</h1>
+          <p class="auth-subtitle">Your personal health companion</p>
+          
+          <form id="login-form">
+            <div class="input-group">
+              <label class="input-label">Email</label>
+              <input type="email" id="login-email" class="input-field" placeholder="you@example.com" required>
+            </div>
+            <div class="input-group">
+              <label class="input-label">Password</label>
+              <input type="password" id="login-password" class="input-field" placeholder="••••••••" required>
+            </div>
+            <div id="login-error" class="error-msg hidden"></div>
+            <button type="submit" class="btn btn-primary" style="width:100%">
+              <span class="btn-text">Sign In</span>
+            </button>
+          </form>
+          
+          <p class="auth-footer">New here? <a href="#" onclick="showPage('register')">Create account</a></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Register Page -->
+    <div id="register-page" class="page hidden">
+      <div class="auth-container">
+        <div class="auth-card">
+          <div class="auth-logo">
+            <div class="logo-icon">✦</div>
+            <span class="logo-text">SHE-INTEL</span>
+          </div>
+          <h1 class="auth-title">Create account</h1>
+          <p class="auth-subtitle">Start your health journey with AI</p>
+          
+          <form id="register-form">
+            <div class="input-group">
+              <label class="input-label">Full Name</label>
+              <input type="text" id="reg-name" class="input-field" placeholder="Your name" required>
+            </div>
+            <div class="input-group">
+              <label class="input-label">Email</label>
+              <input type="email" id="reg-email" class="input-field" placeholder="you@example.com" required>
+            </div>
+            <div class="input-group">
+              <label class="input-label">Password</label>
+              <input type="password" id="reg-password" class="input-field" placeholder="Min 6 characters" required minlength="6">
+            </div>
+            <div class="grid grid-2">
+              <div class="input-group">
+                <label class="input-label">Age</label>
+                <input type="number" id="reg-age" class="input-field" placeholder="18-45" min="18" max="45">
+              </div>
+              <div class="input-group">
+                <label class="input-label">State</label>
+                <select id="reg-state" class="input-field select-field">
+                  <option value="">Select</option>
+                  <option value="Tamil Nadu">Tamil Nadu</option>
+                  <option value="Maharashtra">Maharashtra</option>
+                  <option value="Delhi">Delhi</option>
+                  <option value="Karnataka">Karnataka</option>
+                  <option value="Kerala">Kerala</option>
+                  <option value="West Bengal">West Bengal</option>
+                  <option value="Gujarat">Gujarat</option>
+                  <option value="Rajasthan">Rajasthan</option>
+                  <option value="Uttar Pradesh">Uttar Pradesh</option>
+                  <option value="Madhya Pradesh">Madhya Pradesh</option>
+                </select>
+              </div>
+            </div>
+            <div id="register-error" class="error-msg hidden"></div>
+            <button type="submit" class="btn btn-primary" style="width:100%">
+              <span class="btn-text">Create Account</span>
+            </button>
+          </form>
+          
+          <p class="auth-footer">Already have an account? <a href="#" onclick="showPage('login')">Sign in</a></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dashboard Page -->
+    <div id="dashboard-page" class="page hidden">
+      <nav class="navbar">
+        <div class="navbar-brand">
+          <div class="logo-icon">✦</div>
+          <span>SHE-INTEL</span>
+        </div>
+        <div class="navbar-links">
+          <button onclick="toggleTheme()" class="btn btn-ghost" id="theme-toggle" aria-label="Toggle theme">🌙</button>
+          <span id="user-name" class="nav-user"></span>
+          <button onclick="logout()" class="btn btn-ghost">Logout</button>
+        </div>
+      </nav>
+
+      <main class="main-content">
+        <div class="page-header">
+          <h1 class="page-title">Dashboard</h1>
+          <p class="page-subtitle">Your personal health intelligence</p>
+        </div>
+
+        <div class="dashboard-grid">
+          <aside class="sidebar">
+            <ul class="sidebar-menu">
+              <li class="sidebar-item active" onclick="setTab('overview')" data-tab="overview" role="button" tabindex="0" aria-label="Overview tab">Overview</li>
+              <li class="sidebar-item" onclick="setTab('periods')" data-tab="periods" role="button" tabindex="0" aria-label="Periods tab">Periods</li>
+              <li class="sidebar-item" onclick="setTab('symptoms')" data-tab="symptoms" role="button" tabindex="0" aria-label="Symptoms tab">Symptoms</li>
+              <li class="sidebar-item" onclick="setTab('analyze')" data-tab="analyze" role="button" tabindex="0" aria-label="Analyze tab">Analyze</li>
+              <li class="sidebar-item" onclick="setTab('history')" data-tab="history" role="button" tabindex="0" aria-label="History tab">History</li>
+            </ul>
+          </aside>
+
+          <div class="content-area">
+            <!-- Overview Tab -->
+            <div id="tab-overview" class="tab-content">
+              <div class="grid grid-2">
+                <div class="card">
+                  <h3 class="card-title">Cycle Status</h3>
+                  <div id="cycle-skeleton" class="skeleton" style="height: 80px; border-radius: 8px; margin-bottom: 0.5rem;"></div>
+                  <div id="cycle-content" class="hidden">
+                    <div class="stat-box">
+                      <div class="stat-value" id="avg-cycle">--</div>
+                      <div class="stat-label">Avg Cycle (days)</div>
+                    </div>
+                    <div class="next-period-box hidden" id="next-period-box">
+                      <small>Next Period</small>
+                      <div class="next-date" id="next-date">--</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="card">
+                  <h3 class="card-title">Recent Symptoms</h3>
+                  <div id="symptoms-skeleton" class="skeleton" style="height: 80px; border-radius: 8px;"></div>
+                  <div id="symptoms-content" class="hidden">
+                    <div class="stat-box">
+                      <div class="stat-value" id="symptom-count">0</div>
+                      <div class="stat-label">Entries Logged</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="card" style="grid-column:span 2">
+                  <h3 class="card-title">This Month</h3>
+                  <div class="calendar-header">
+                    <span id="current-month"></span>
+                  </div>
+                  <div class="calendar-grid" id="calendar"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Periods Tab -->
+            <div id="tab-periods" class="tab-content hidden">
+              <div class="card">
+                <h3 class="card-title">Log Period</h3>
+                <form id="period-form">
+                  <div class="grid grid-2">
+                    <div class="input-group">
+                      <label class="input-label">Start Date</label>
+                      <input type="date" id="period-start" class="input-field" required>
+                    </div>
+                    <div class="input-group">
+                      <label class="input-label">End Date</label>
+                      <input type="date" id="period-end" class="input-field">
+                    </div>
+                  </div>
+                  <div class="input-group">
+                    <label class="input-label">Flow Level</label>
+                    <select id="period-flow" class="input-field select-field">
+                      <option value="">Select</option>
+                      <option value="Light">Light</option>
+                      <option value="Medium">Medium</option>
+                      <option value="Heavy">Heavy</option>
+                    </select>
+                  </div>
+                  <div class="input-group">
+                    <label class="input-label">Symptoms (optional)</label>
+                    <textarea id="period-symptoms" class="input-field textarea" placeholder="Any symptoms..." maxlength="1000" aria-describedby="period-symptoms-counter"></textarea>
+                    <div id="period-symptoms-counter" class="char-counter">0 / 1000</div>
+                  </div>
+                  <button type="submit" class="btn btn-primary">
+              <span class="btn-text">Log Period</span>
+            </button>
+                </form>
+              </div>
+              <div class="card" style="margin-top:1.5rem">
+                <h3 class="card-title">History</h3>
+                <div id="period-history"></div>
+              </div>
+            </div>
+
+            <!-- Symptoms Tab -->
+            <div id="tab-symptoms" class="tab-content hidden">
+              <div class="grid grid-2">
+                <div class="card">
+                  <h3 class="card-title">Log Symptoms</h3>
+                  <form id="symptom-form">
+                    <div class="input-group">
+                      <label class="input-label">Description</label>
+                      <textarea id="symptom-desc" class="input-field textarea" placeholder="Describe how you feel..." required maxlength="2000" aria-describedby="symptom-desc-counter"></textarea>
+                      <div id="symptom-desc-counter" class="char-counter">0 / 2000</div>
+                    </div>
+                    <div class="grid grid-2">
+                      <div class="input-group">
+                        <label class="input-label">Fatigue: <span id="fatigue-val">5</span></label>
+                        <input type="range" id="symptom-fatigue" min="1" max="10" value="5" oninput="document.getElementById('fatigue-val').textContent=this.value">
+                      </div>
+                      <div class="input-group">
+                        <label class="input-label">Sleep: <span id="sleep-val">5</span></label>
+                        <input type="range" id="symptom-sleep" min="1" max="10" value="5" oninput="document.getElementById('sleep-val').textContent=this.value">
+                      </div>
+                    </div>
+                    <div class="input-group">
+                      <label class="input-label">Mood</label>
+                      <select id="symptom-mood" class="input-field select-field">
+                        <option value="">Select</option>
+                        <option value="happy">Happy</option>
+                        <option value="sad">Sad</option>
+                        <option value="anxious">Anxious</option>
+                        <option value="calm">Calm</option>
+                        <option value="irritable">Irritable</option>
+                      </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width:100%">
+                      <span class="btn-text">Log Symptoms</span>
+                    </button>
+                  </form>
+                </div>
+                <div class="card">
+                  <h3 class="card-title">Recent Entries</h3>
+                  <div id="symptom-history"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Analyze Tab -->
+            <div id="tab-analyze" class="tab-content hidden">
+              <div class="grid grid-2">
+                <div class="card">
+                  <h3 class="card-title">Health Analysis</h3>
+                  <p class="input-label">Describe how you're feeling to get AI insights</p>
+                  <form id="analyze-form">
+                    <div class="input-group">
+                      <label class="input-label">What are you experiencing?</label>
+                      <textarea id="analyze-desc" class="input-field textarea" placeholder="I've been feeling very tired lately..." required maxlength="2000" aria-describedby="analyze-desc-counter"></textarea>
+                      <div id="analyze-desc-counter" class="char-counter">0 / 2000</div>
+                    </div>
+                    <div class="grid grid-2">
+                      <div class="input-group">
+                        <label class="input-label">Fatigue: <span id="analyze-fatigue-val">5</span></label>
+                        <input type="range" id="analyze-fatigue" min="1" max="10" value="5" oninput="document.getElementById('analyze-fatigue-val').textContent=this.value">
+                      </div>
+                      <div class="input-group">
+                        <label class="input-label">Sleep: <span id="analyze-sleep-val">5</span></label>
+                        <input type="range" id="analyze-sleep" min="1" max="10" value="5" oninput="document.getElementById('analyze-sleep-val').textContent=this.value">
+                      </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width:100%">
+                      <span class="btn-text">Analyze</span>
+                    </button>
+                  </form>
+                </div>
+                <div class="card">
+                  <h3 class="card-title">Results</h3>
+                  <div id="analysis-result">
+                    <div class="empty-state">
+                      <div class="empty-icon">◇</div>
+                      <p>Enter your symptoms and click Analyze</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- History Tab -->
+            <div id="tab-history" class="tab-content hidden">
+              <div class="card">
+                <h3 class="card-title">Analysis History</h3>
+                <div id="history-list"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
