@@ -2,7 +2,7 @@ from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, RedirectResponse
 from app.database import engine, Base
 from app.ml.xgb_model import load_model
 from app.routers import analysis, auth, periods, symptoms
@@ -55,10 +55,6 @@ def frontend_css():
     return {"message": "Frontend asset not found"}
 
 
-@app.get("/")
+@app.get("/", include_in_schema=False)
 def root():
-    return {
-        "message": "SHE-INTEL INDIA API",
-        "status": "running",
-        "frontend": "/app",
-    }
+    return RedirectResponse(url="/app", status_code=302)
