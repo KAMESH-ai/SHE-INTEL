@@ -2,8 +2,8 @@ services:
   - type: web
     name: she-intel-backend
     env: python
-    buildCommand: cd backend && pip install -r requirements.txt
-    startCommand: cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT
     disk:
       name: she-intel-data
       mountPath: /var/data
@@ -12,5 +12,5 @@ services:
       - key: DATABASE_URL
         value: sqlite:////var/data/she_intel.db
       - key: XGB_MODEL_ARTIFACT_PATH
-        value: app/ml/artifacts/xgb_model.joblib
+        value: backend/app/ml/artifacts/xgb_model.joblib
     autoDeploy: true
