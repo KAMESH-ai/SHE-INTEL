@@ -54,6 +54,12 @@ cd backend
 uvicorn app.main:app --host 0.0.0.0 --port 8002
 ```
 
+Or, equivalently, from the project root (works because `backend/__init__.py` is present):
+
+```bash
+uvicorn backend.app.main:app --host 0.0.0.0 --port 8002
+```
+
 Backend URL: http://localhost:8002
 
 2. Start frontend (new terminal):
@@ -76,12 +82,32 @@ Frontend URL: http://localhost:5173
 
 ## Run Tests
 
-From the project root:
+From the project root (shim tests):
+
+```bash
+pytest tests/test_shim.py -v
+```
+
+From within the `backend/` directory (full API tests):
 
 ```bash
 cd backend
 pytest tests -v
 ```
+
+## Production Deployment (Render)
+
+The `render.yaml` in this repository configures the Render service to use:
+
+```
+startCommand: uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT
+buildCommand: pip install -r backend/requirements.txt
+```
+
+A backward-compatible shim at `backend/main.py` re-exports `app` from
+`backend/app/main.py`, so the older command `uvicorn backend.main:app`
+also works in case a Render service was configured before `render.yaml`
+was adopted.
 
 ## Optional: Seed Demo Data
 
@@ -104,7 +130,17 @@ This repository is configured to exclude non-source folders/files such as:
 ```text
 she-intel-india/
 ├── backend/
+│   ├── __init__.py         # package marker (enables backend.* imports)
+│   ├── main.py             # ASGI shim – re-exports app from backend/app/main.py
 │   ├── app/
+│   │   ├── __init__.py
+│   │   ├── main.py
+│   │   ├── auth.py
+│   │   ├── database.py
+│   │   ├── ml/
+│   │   ├── models/
+│   │   ├── routers/
+│   │   └── services/
 │   ├── requirements.txt
 │   ├── scripts/
 │   └── tests/
@@ -112,6 +148,8 @@ she-intel-india/
 │   ├── index.html
 │   ├── app.js
 │   └── styles.css
+├── tests/
+│   └── test_shim.py        # shim smoke tests (run from project root)
 ├── render.yaml
 └── README.md
 ```

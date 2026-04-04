@@ -2,9 +2,9 @@ from datetime import datetime, timedelta, UTC
 from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.database import get_db
-from app.models.models import Period, User
-from app.auth import get_current_user
+from ..database import get_db
+from ..models.models import Period, User
+from ..auth import get_current_user
 from pydantic import BaseModel, Field, model_validator, ConfigDict
 
 router = APIRouter(prefix="/periods", tags=["Periods"])

@@ -3,9 +3,9 @@ from pathlib import Path
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
-from app.database import engine, Base
-from app.ml.xgb_model import load_model
-from app.routers import analysis, auth, periods, symptoms
+from .database import engine, Base
+from .ml.xgb_model import load_model
+from .routers import analysis, auth, periods, symptoms
 
 Base.metadata.create_all(bind=engine)
 load_model()

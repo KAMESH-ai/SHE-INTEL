@@ -7,17 +7,17 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field, field_validator, ConfigDict
 from sqlalchemy.orm import Session
 
-from app.auth import get_current_user
-from app.database import get_db
-from app.ml.xgb_model import (
+from ..auth import get_current_user
+from ..database import get_db
+from ..ml.xgb_model import (
     build_features,
     confidence_label,
     get_model_metadata,
     predict_from_features,
     recommendations_for,
 )
-from app.models.models import HealthAnalysis, Period, Symptom, User
-from app.services.india_context import (
+from ..models.models import HealthAnalysis, Period, Symptom, User
+from ..services.india_context import (
     get_aqi_enrichment,
     get_diet_recommendations,
     get_gender_bias_awareness,
