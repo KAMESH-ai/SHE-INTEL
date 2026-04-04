@@ -272,3 +272,30 @@ def test_phase2_auth_missing_token_and_bad_payload():
         json={"email": "bad@example.com", "password": "wrongpass"},
     )
     assert bad_login.status_code == 401
+
+
+def test_root_serves_frontend_html():
+    response = client.get("/")
+    assert response.status_code == 200
+    assert "text/html" in response.headers["content-type"]
+    assert b"SHE-INTEL" in response.content
+
+
+def test_app_alias_serves_frontend_html():
+    response = client.get("/app")
+    assert response.status_code == 200
+    assert "text/html" in response.headers["content-type"]
+
+
+def test_health_endpoint_returns_json():
+    response = client.get("/health")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "running"
+    assert data["frontend"] == "/"
+
+
+def test_static_assets_return_200():
+    for path in ("/app.js", "/styles.css"):
+        response = client.get(path)
+        assert response.status_code == 200
