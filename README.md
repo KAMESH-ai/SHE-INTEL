@@ -45,6 +45,26 @@ cd backend
 pip install -r requirements.txt
 ```
 
+## Deployment (Render)
+
+The correct Uvicorn start command is:
+
+```bash
+cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+```
+
+The FastAPI application lives at `backend/app/main.py`. When Uvicorn is launched from
+within the `backend/` directory the module path is `app.main:app`. Using
+`backend.main:app` (without `cd backend`) will cause:
+
+```
+Error loading ASGI app. Could not import module 'backend.main'.
+```
+
+This is already set correctly in `render.yaml`. If you see this error on Render, check
+**Settings → Start Command** in the Render dashboard and make sure it matches the
+command above.
+
 ## Run the Project
 
 1. Start backend API:
