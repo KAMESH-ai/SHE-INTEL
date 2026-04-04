@@ -74,6 +74,32 @@ python3 -m http.server 5173
 
 Frontend URL: http://localhost:5173
 
+## Routes
+
+### Frontend UI
+
+| URL | Description |
+|-----|-------------|
+| `/` | Serves the frontend UI (index.html) |
+| `/app` | Redirects to `/` |
+| `/app.js` | Frontend JavaScript bundle |
+| `/styles.css` | Frontend stylesheet |
+
+### API Endpoints
+
+| URL | Description |
+|-----|-------------|
+| `/api/status` | API health check (JSON) |
+| `/auth/register` | Register a new user |
+| `/auth/login` | Login and get JWT token |
+| `/auth/me` | Get current user info |
+| `/periods/` | List / create period entries |
+| `/periods/calendar` | Calendar view with cycle prediction |
+| `/symptoms/` | List / log symptom entries |
+| `/analysis/analyze` | Run ML health analysis |
+| `/analysis/history` | View analysis history |
+| `/docs` | Interactive API documentation (Swagger UI) |
+
 ## Run Tests
 
 From the project root:
