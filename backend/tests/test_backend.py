@@ -9,9 +9,9 @@ import requests
 os.environ.setdefault("DATABASE_URL", f"sqlite:///{Path(tempfile.gettempdir()) / 'she_intel_test.db'}")
 os.environ.setdefault("XGB_MODEL_ARTIFACT_PATH", str(Path(tempfile.gettempdir()) / 'she_intel_xgb_model.joblib'))
 
-from app.main import app  # noqa: E402
-from app.ml.xgb_model import ARTIFACT_PATH, get_model_metadata  # noqa: E402
-from app.services import india_context as india_context_service  # noqa: E402
+from backend.app.main import app  # noqa: E402
+from backend.app.ml.xgb_model import ARTIFACT_PATH, get_model_metadata  # noqa: E402
+from backend.app.services import india_context as india_context_service  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402
 
 
@@ -272,3 +272,15 @@ def test_phase2_auth_missing_token_and_bad_payload():
         json={"email": "bad@example.com", "password": "wrongpass"},
     )
     assert bad_login.status_code == 401
+
+
+def test_import_backend_app_main():
+    import importlib
+    mod = importlib.import_module("backend.app.main")
+    assert hasattr(mod, "app"), "backend.app.main must expose 'app'"
+
+
+def test_import_backend_main_shim():
+    import importlib
+    mod = importlib.import_module("backend.main")
+    assert hasattr(mod, "app"), "backend.main shim must re-export 'app'"
