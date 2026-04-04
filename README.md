@@ -90,6 +90,32 @@ cd backend
 python3 scripts/seed_demo_data.py
 ```
 
+## Deploy on Railway
+
+This repo is configured for a single-service Railway deploy (backend serves frontend from `/`).
+
+1. Push your latest code to GitHub.
+2. In Railway, create a new project from this repo.
+3. Ensure the service uses these settings (already encoded in `Procfile` and `railway.json`):
+
+```bash
+Start command: uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT
+```
+
+4. Add environment variables in Railway:
+
+```bash
+DATABASE_URL=sqlite:///./she_intel.db
+XGB_MODEL_ARTIFACT_PATH=backend/app/ml/artifacts/xgb_model.joblib
+```
+
+5. Deploy.
+
+After deployment:
+
+- App UI: `https://<your-service>.up.railway.app/`
+- API status: `https://<your-service>.up.railway.app/api`
+
 ## Important Git Ignore Rules
 
 This repository is configured to exclude non-source folders/files such as:
