@@ -57,8 +57,20 @@ def frontend_css():
 
 @app.get("/")
 def root():
+    index_file = FRONTEND_DIR / "index.html"
+    if index_file.exists():
+        return FileResponse(index_file)
     return {
         "message": "SHE-INTEL INDIA API",
         "status": "running",
         "frontend": "/app",
+    }
+
+
+@app.get("/api")
+def api_root():
+    return {
+        "message": "SHE-INTEL INDIA API",
+        "status": "running",
+        "frontend": "/",
     }
