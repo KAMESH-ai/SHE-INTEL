@@ -41,20 +41,25 @@ source .venv/bin/activate
 3. Install backend dependencies:
 
 ```bash
-cd backend
-pip install -r requirements.txt
+pip install -r backend/requirements.txt
 ```
 
 ## Run the Project
 
-1. Start backend API:
+1. Start backend API (from project root):
+
+```bash
+uvicorn backend.app.main:app --host 0.0.0.0 --port 8002
+```
+
+Backend URL: http://localhost:8002
+
+Alternatively, from inside `backend/`:
 
 ```bash
 cd backend
 uvicorn app.main:app --host 0.0.0.0 --port 8002
 ```
-
-Backend URL: http://localhost:8002
 
 2. Start frontend (new terminal):
 
@@ -79,8 +84,7 @@ Frontend URL: http://localhost:5173
 From the project root:
 
 ```bash
-cd backend
-pytest tests -v
+pytest backend/tests -v
 ```
 
 ## Optional: Seed Demo Data

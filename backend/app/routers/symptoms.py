@@ -3,9 +3,9 @@ from typing import List, Optional
 
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
-from app.database import get_db
-from app.models.models import Symptom, User
-from app.auth import get_current_user
+from backend.app.database import get_db
+from backend.app.models.models import Symptom, User
+from backend.app.auth import get_current_user
 from pydantic import BaseModel, Field, field_validator, ConfigDict
 
 router = APIRouter(prefix="/symptoms", tags=["Symptoms"])
