@@ -295,7 +295,7 @@ def test_health_endpoint_returns_json():
     assert data["frontend"] == "/"
 
 
-def test_static_assets_served():
+def test_static_assets_return_200():
     for path in ("/app.js", "/styles.css"):
         response = client.get(path)
         assert response.status_code == 200
