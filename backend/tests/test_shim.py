@@ -3,15 +3,8 @@
 These ensure that `uvicorn backend.main:app` can resolve the FastAPI app
 from the project root without an import error.
 """
-import os
-import tempfile
-from pathlib import Path
-
-os.environ.setdefault("DATABASE_URL", f"sqlite:///{Path(tempfile.gettempdir()) / 'she_intel_test.db'}")
-os.environ.setdefault("XGB_MODEL_ARTIFACT_PATH", str(Path(tempfile.gettempdir()) / 'she_intel_xgb_model.joblib'))
-
-import backend.main  # noqa: E402
-from fastapi import FastAPI  # noqa: E402
+import backend.main
+from fastapi import FastAPI
 
 
 def test_backend_main_is_importable():
