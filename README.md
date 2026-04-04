@@ -56,6 +56,12 @@ uvicorn app.main:app --host 0.0.0.0 --port 8002
 
 Backend URL: http://localhost:8002
 
+> **Production note:** On Render and other platforms that run from the project root, the FastAPI app is started via the shim at `backend/main.py`:
+> ```bash
+> uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+> ```
+> `backend/main.py` re-exports the `app` object from `backend/app/main.py`, so both `uvicorn backend.main:app` and `cd backend && uvicorn app.main:app` point to the same application.
+
 2. Start frontend (new terminal):
 
 Option A (Node):
@@ -104,7 +110,11 @@ This repository is configured to exclude non-source folders/files such as:
 ```text
 she-intel-india/
 ├── backend/
+│   ├── __init__.py          # makes backend/ a Python package
+│   ├── main.py              # shim: re-exports app from backend/app/main.py
 │   ├── app/
+│   │   ├── __init__.py      # makes backend/app/ a Python package
+│   │   └── main.py          # FastAPI application entry point
 │   ├── requirements.txt
 │   ├── scripts/
 │   └── tests/
