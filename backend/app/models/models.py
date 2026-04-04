@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, Float, DateTime, Text, ForeignKey
 from sqlalchemy.orm import relationship
 from datetime import datetime, UTC
-from app.database import Base
+from backend.app.database import Base
 
 
 class User(Base):
