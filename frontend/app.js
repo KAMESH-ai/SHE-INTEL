@@ -1,21 +1,24 @@
-const API_URL = window.SHE_INTEL_API_URL || localStorage.getItem('she_intel_api_url') || 'http://localhost:8002';
+const isLocalHost = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+const API_URL = window.SHE_INTEL_API_URL
+  || localStorage.getItem('she_intel_api_url')
+  || (isLocalHost ? 'http://localhost:8002' : window.location.origin);
 
 // Toast notification system
 function showToast(message, type = 'success') {
   const container = document.getElementById('toast-container');
   if (!container) return;
-  
+
   const toast = document.createElement('div');
   toast.className = `toast toast-${type}`;
-  
+
   const icons = { success: '✓', error: '✕', warning: '⚠' };
   toast.innerHTML = `
     <span style="font-size: 1.1rem;">${icons[type] || '•'}</span>
     <span>${escapeHtml(message)}</span>
   `;
-  
+
   container.appendChild(toast);
-  
+
   setTimeout(() => {
     toast.style.opacity = '0';
     toast.style.transform = 'translateX(100%)';
@@ -27,7 +30,7 @@ function showToast(message, type = 'success') {
 function setButtonLoading(button, loading) {
   const btn = button.closest('button');
   if (!btn) return;
-  
+
   if (loading) {
     btn.classList.add('loading');
     btn.disabled = true;
@@ -53,7 +56,7 @@ function setupCharCounters() {
     { input: 'analyze-desc', counter: 'analyze-desc-counter', max: 2000 },
     { input: 'period-symptoms', counter: 'period-symptoms-counter', max: 1000 }
   ];
-  
+
   counters.forEach(({ input, counter, max }) => {
     const inputEl = document.getElementById(input);
     const counterEl = document.getElementById(counter);
@@ -102,7 +105,7 @@ function toggleTheme() {
   const btn = document.getElementById('theme-toggle');
   const currentTheme = html.getAttribute('data-theme');
   const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-  
+
   html.setAttribute('data-theme', newTheme);
   localStorage.setItem('theme', newTheme);
   btn.textContent = newTheme === 'dark' ? '☀️' : '🌙';
@@ -155,7 +158,7 @@ function showPage(page) {
     p.classList.add('hidden');
     p.classList.remove('visible');
   });
-  
+
   const target = document.getElementById(`${page}-page`);
   if (target) {
     target.classList.remove('hidden');
@@ -250,12 +253,12 @@ async function loadOverview() {
   const cycleContent = document.getElementById('cycle-content');
   const symptomsSkeleton = document.getElementById('symptoms-skeleton');
   const symptomsContent = document.getElementById('symptoms-content');
-  
+
   if (cycleSkeleton) cycleSkeleton.style.display = 'block';
   if (cycleContent) cycleContent.classList.add('hidden');
   if (symptomsSkeleton) symptomsSkeleton.style.display = 'block';
   if (symptomsContent) symptomsContent.classList.add('hidden');
-  
+
   try {
     const [periodsRes, symptomsRes, calendarRes] = await Promise.all([
       apiGet('/periods/'),
@@ -438,7 +441,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupCharCounters();
   setupTabNavigation();
   loadTheme();
-  
+
   const token = getToken();
   if (token) {
     window.token = token;
@@ -512,13 +515,13 @@ document.getElementById('period-form').addEventListener('submit', async (e) => {
   const btn = e.target.querySelector('button');
   const startDate = document.getElementById('period-start').value;
   const endDate = document.getElementById('period-end').value;
-  
+
   // Validate
   if (endDate && new Date(endDate) < new Date(startDate)) {
     showToast('End date must be after start date', 'error');
     return;
   }
-  
+
   setButtonLoading(btn, true);
 
   try {

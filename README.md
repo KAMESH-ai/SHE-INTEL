@@ -1,141 +1,117 @@
 # SHE-INTEL INDIA
 
-Context-aware predictive health intelligence app for Indian women with FastAPI backend and vanilla frontend.
+Context-aware predictive health intelligence app for Indian women, built with a FastAPI backend and a vanilla JavaScript frontend.
 
 ## Features
 
-- **Authentication** - User registration, login, JWT tokens
-- **Period Tracking** - Log periods, view history, cycle prediction
-- **Symptom Logging** - Track fatigue, sleep quality, mood
-- **Health Analysis** - ML-powered risk assessment for:
-  - Iron Deficiency Anemia
-  - PCOS
-  - Thyroid Disorder
-  - Diabetes Risk
-  - Vitamin D Deficiency
-- **India Context** - State-based diet recommendations, AQI data, government schemes, lab cost estimates
-- **Dark/Light Mode** - Toggle theme in navbar
+- User authentication (register/login with JWT)
+- Period tracking and cycle history
+- Symptom logging with fatigue/sleep indicators
+- ML-powered health risk analysis
+- India-specific context recommendations
 
 ## Tech Stack
 
-- **Backend**: FastAPI, SQLAlchemy, SQLite, XGBoost ML
-- **Frontend**: Vanilla HTML/CSS/JS
-- **Testing**: Pytest
+- Backend: FastAPI, SQLAlchemy, SQLite, XGBoost
+- Frontend: HTML, CSS, JavaScript
+- Testing: Pytest
 
-## Setup Instructions
-
-### Prerequisites
+## Prerequisites
 
 - Python 3.10+
-- Node.js (for frontend server)
+- pip
+- Node.js (optional, only if using `npx serve` for frontend)
 
-### 1. Clone and Setup Backend
+## Local Setup
+
+1. Clone the repository:
 
 ```bash
-# Create virtual environment
-python -m venv venv
+git clone <your-repo-url>
+cd she-intel-india
+```
 
-# Activate (Linux/Mac)
-source venv/bin/activate
+2. Create and activate a virtual environment:
 
-# Activate (Windows)
-venv\Scripts\activate
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
 
-# Install dependencies
+3. Install backend dependencies:
+
+```bash
 cd backend
 pip install -r requirements.txt
 ```
 
-### 2. Run Backend
+## Run the Project
+
+1. Start backend API:
 
 ```bash
 cd backend
-python -m uvicorn app.main:app --host 0.0.0.0 --port 8002
+uvicorn app.main:app --host 0.0.0.0 --port 8002
 ```
 
-Backend runs at: http://localhost:8002
+Backend URL: http://localhost:8002
 
-### 3. Run Frontend
+2. Start frontend (new terminal):
+
+Option A (Node):
 
 ```bash
 cd frontend
 npx serve -l 5173
 ```
 
-Or using Python:
+Option B (Python):
+
 ```bash
 cd frontend
-python -m http.server 5173
+python3 -m http.server 5173
 ```
 
-Frontend runs at: http://localhost:5173
+Frontend URL: http://localhost:5173
 
-### 4. Run Tests
+## Run Tests
+
+From the project root:
 
 ```bash
 cd backend
-pytest tests/ -v
+pytest tests -v
 ```
 
-### 5. Seed Demo Data (Optional)
+## Optional: Seed Demo Data
 
 ```bash
 cd backend
-python scripts/seed_demo_data.py
+python3 scripts/seed_demo_data.py
 ```
 
-## Demo Accounts
+## Important Git Ignore Rules
 
-After seeding demo data, use these credentials:
+This repository is configured to exclude non-source folders/files such as:
 
-| Email | Password |
-|-------|----------|
-| demo_10016dc7@example.com | secret123 |
-| demo_71c30ef8@example.com | secret123 |
-| demo_c04fc623@example.com | secret123 |
+- `node_modules/`
+- `.build/`
+- `.env`
+- `__pycache__/`
 
 ## Project Structure
 
-```
+```text
 she-intel-india/
 ├── backend/
 │   ├── app/
-│   │   ├── main.py          # FastAPI app
-│   │   ├── database.py      # SQLAlchemy setup
-│   │   ├── auth.py          # JWT authentication
-│   │   ├── models/          # Database models
-│   │   ├── routers/         # API endpoints
-│   │   ├── ml/              # ML model
-│   │   └── services/        # India context data
-│   ├── tests/               # Pytest tests
-│   ├── scripts/             # Seed data script
-│   └── requirements.txt
+│   ├── requirements.txt
+│   ├── scripts/
+│   └── tests/
 ├── frontend/
-│   ├── index.html           # Main HTML
-│   ├── app.js               # Frontend logic
-│   └── styles.css           # Styling
+│   ├── index.html
+│   ├── app.js
+│   └── styles.css
+├── render.yaml
 └── README.md
 ```
-
-## API Endpoints
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/auth/register` | POST | Register new user |
-| `/auth/login` | POST | Login user |
-| `/auth/me` | GET | Get current user |
-| `/periods/` | POST/GET | Create/list periods |
-| `/periods/calendar` | GET | Get calendar with prediction |
-| `/symptoms/` | POST/GET | Create/list symptoms |
-| `/analysis/analyze` | POST | Get health analysis |
-| `/analysis/history` | GET | Get analysis history |
-
-## Environment Variables
-
-Optional (defaults work out of the box):
-- `DATABASE_URL` - SQLite database path
-- `XGB_MODEL_ARTIFACT_PATH` - ML model path
-
-## License
-
-MIT
