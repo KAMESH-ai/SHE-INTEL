@@ -4,13 +4,16 @@
 1. [Project Overview](#project-overview)
 2. [System Architecture](#system-architecture)
 3. [Tech Stack](#tech-stack)
-4. [Database Schema](#database-schema)
-5. [API Endpoints](#api-endpoints)
-6. [ML Model Details](#ml-model-details)
-7. [India Context Features](#india-context-features)
-8. [Frontend Features](#frontend-features)
-9. [Testing](#testing)
-10. [Deployment](#deployment)
+4. [How the Tech Stack Works Together](#how-the-tech-stack-works-together)
+5. [How NLP Works Here](#how-nlp-works-here)
+6. [How ML Model Works](#how-ml-model-works)
+7. [Database Schema](#database-schema)
+8. [API Endpoints](#api-endpoints)
+9. [ML Model Details](#ml-model-details)
+10. [India Context Features](#india-context-features)
+11. [Frontend Features](#frontend-features)
+12. [Testing](#testing)
+13. [Deployment](#deployment)
 
 ---
 
@@ -94,7 +97,370 @@
 
 ---
 
-## 4. Database Schema
+## 4. How the Tech Stack Works Together
+
+```
+User Action (Frontend)
+       │
+       ▼
+HTML Form Submit → JavaScript (app.js)
+       │
+       ▼
+Fetch API → HTTP Request (JSON)
+       │
+       ▼
+FastAPI (Backend)
+       │
+       ├─▶ Routes (auth/periods/symptoms/analysis)
+       │
+       ├─▶ SQLAlchemy → SQLite Database
+       │
+       └─▶ ML Model (XGBoost) → Risk Prediction
+       │
+       ▼
+Response (JSON)
+       │
+       ▼
+Frontend Updates DOM
+```
+
+### Tech Stack Purpose Details
+
+#### **FastAPI** (Backend Framework)
+```python
+# app/main.py
+from fastapi import FastAPI
+
+app = FastAPI(title="SHE-INTEL INDIA")
+
+@app.get("/")
+def root():
+    return {"message": "SHE-INTEL INDIA API"}
+
+app.include_router(auth.router)
+app.include_router(periods.router)
+app.include_router(symptoms.router)
+app.include_router(analysis.router)
+```
+**Purpose**: Creates the web server, handles routes, processes requests
+
+---
+
+#### **SQLAlchemy** (Database ORM)
+```python
+# app/database.py
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
+engine = create_engine("sqlite:///./she_intel.db")
+SessionLocal = sessionmaker(bind=engine)
+
+# app/models/models.py
+class User(Base):
+    __tablename__ = "users"
+    id = Column(Integer, primary_key=True)
+    email = Column(String, unique=True)
+    name = Column(String)
+    # ... relationships to Period, Symptom
+```
+**Purpose**: Python code to interact with database instead of raw SQL
+
+---
+
+#### **JWT (JSON Web Tokens)** (Authentication)
+```python
+# app/auth.py
+from jose import jwt
+
+SECRET_KEY = "secret-key"
+ALGORITHM = "HS256"
+
+def create_access_token(data: dict):
+    return jwt.encode(data, SECRET_KEY, algorithm=ALGORITHM)
+
+# Token contains: {"sub": "user@email.com", "exp": 1234567890}
+```
+**Purpose**: Securely identify users without storing sessions
+
+---
+
+#### **XGBoost** (Machine Learning)
+```python
+# app/ml/xgb_model.py
+from xgboost import XGBClassifier
+
+model = XGBClassifier(
+    n_estimators=180,
+    max_depth=4,
+    learning_rate=0.08
+)
+model.fit(X_train, y_train)
+prediction = model.predict_proba(X_new)
+```
+**Purpose**: Gradient boosting classifier for disease prediction
+
+---
+
+## 5. How NLP Works Here
+
+### Step 1: User Input (Text)
+```
+User enters: "Feeling very tired with dizziness and pale skin"
+```
+
+### Step 2: Keyword Extraction
+```python
+# app/ml/xgb_model.py
+
+KEYWORDS = {
+    "iron_deficiency_anemia": ["fatigue", "dizzy", "dizziness", "weak", "pale", "heavy bleeding"],
+    "pcos": ["irregular period", "acne", "weight gain"],
+    "thyroid_disorder": ["hair loss", "cold", "constipation"],
+    # ...
+}
+
+def _count_keywords(text, keywords):
+    text = text.lower()
+    return sum(1 for keyword in keywords if keyword in text)
+
+# Example: "Feeling very tired with dizziness and pale skin"
+# iron_deficiency_anemia keywords found: 3 (tired/dizzy/pale)
+```
+
+### Step 3: Feature Vector Creation
+```python
+# app/ml/xgb_model.py
+
+def build_features(description, fatigue_level, sleep_quality, age, ...):
+    return {
+        "fatigue_level": 7,
+        "sleep_quality": 4,
+        "age": 28,
+        "iron_kw": 3,      # ← Keyword count
+        "pcos_kw": 0,
+        "thyroid_kw": 0,
+        # ... 25 features total
+    }
+```
+
+### Visual: NLP Feature Extraction
+```
+Input Text: "Feeling dizzy, pale, and very tired with heavy bleeding"
+
+┌─────────────────────────────────────────────────────┐
+│                   TEXT PROCESSING                    │
+├─────────────────────────────────────────────────────┤
+│                                                     │
+│  "Feeling dizzy, pale, and very tired..."          │
+│         │        │      │        │                  │
+│         ▼        ▼      ▼        ▼                  │
+│    ┌─────────┬──────┬────────┬──────────────┐    │
+│    │  dizzy  │ pale │ tired  │ heavy bleeding│    │
+│    │    ✓    │  ✓   │   ✓    │      ✓        │    │
+│    └─────────┴──────┴────────┴──────────────┘    │
+│         │        │      │        │                  │
+│         ▼        ▼      ▼        ▼                  │
+│    iron_kw = 4  (count of matching keywords)       │
+│                                                     │
+└─────────────────────────────────────────────────────┘
+```
+
+---
+
+## 6. How ML Model Works
+
+### Training Phase (Done at startup)
+```python
+# app/ml/xgb_model.py
+
+# 1. Create synthetic training data
+TRAINING_DATA = {
+    "iron_deficiency_anemia": [
+        {"fatigue_level": 9, "sleep_quality": 4, "iron_kw": 3, "dizziness_kw": 1},
+        # ... 35 samples per disease
+    ],
+    "pcos": [...],
+    # ... 6 categories
+}
+
+# 2. Train XGBoost model
+model = XGBClassifier(n_estimators=180, max_depth=4)
+model.fit(X_train, y_train)
+
+# 3. Save model to disk
+joblib.dump(model, "xgb_model.joblib")
+```
+
+### Prediction Phase (On User Request)
+```python
+# When user submits symptoms for analysis
+
+# 1. Build feature vector from user input
+features = build_features(
+    description="Feeling dizzy with pale skin",
+    fatigue_level=8,
+    sleep_quality=4,
+    age=25,
+    avg_cycle_length=28,
+    cycle_variation=3,
+    recent_fatigue_avg=5,
+    recent_sleep_avg=6
+)
+
+# 2. Get prediction from ML model
+result = model.predict_proba([features])
+
+# Result: [0.85, 0.05, 0.03, 0.02, 0.01, 0.04]
+#          ↑
+#          85% probability of iron_deficiency_anemia
+```
+
+### Visual: ML Prediction Flow
+
+```
+┌────────────────────────────────────────────────────────────────┐
+│                    ML PREDICTION PIPELINE                     │
+├────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  USER INPUT                                                    │
+│  ┌──────────────────────────────────────────────────────────┐ │
+│  │ description: "Feeling dizzy with pale skin"            │ │
+│  │ fatigue_level: 8                                        │ │
+│  │ sleep_quality: 4                                        │ │
+│  │ age: 28                                                 │ │
+│  └──────────────────────────────────────────────────────────┘ │
+│                          │                                      │
+│                          ▼                                      │
+│  ┌──────────────────────────────────────────────────────────┐ │
+│  │ FEATURE EXTRACTION                                        │ │
+│  │ • fatigue_level: 8                                       │ │
+│  │ • sleep_quality: 4                                       │ │
+│  │ • iron_kw: 3 (keywords found in text)                   │ │
+│  │ • pcos_kw: 0                                             │ │
+│  │ • thyroid_kw: 0                                          │ │
+│  │ • ... (25 features total)                                │ │
+│  └──────────────────────────────────────────────────────────┘ │
+│                          │                                      │
+│                          ▼                                      │
+│  ┌──────────────────────────────────────────────────────────┐ │
+│  │ XGBOOST MODEL (xgb_model.joblib)                         │ │
+│  │                                                          │ │
+│  │   Input: [8, 4, 28, 3, 3, 0, 0, 0, 3, ...]             │ │
+│  │       │                                                  │ │
+│  │       ▼                                                  │ │
+│  │   ┌─────────────────────────────────────┐                │ │
+│  │   │   Decision Tree Ensemble            │                │ │
+│  │   │   (180 trees, max_depth=4)         │                │ │
+│  │   └─────────────────────────────────────┘                │ │
+│  │       │                                                  │ │
+│  │       ▼                                                  │ │
+│  │   Output: [0.85, 0.05, 0.03, 0.02, 0.01, 0.04]         │ │
+│  └──────────────────────────────────────────────────────────┘ │
+│                          │                                      │
+│                          ▼                                      │
+│  ┌──────────────────────────────────────────────────────────┐ │
+│  │ RESULT                                                     │ │
+│  │ • Risk: iron_deficiency_anemia                            │ │
+│  │ • Confidence: 85% (HIGH)                                   │ │
+│  │ • Recommendations: [CBC test, iron-rich foods]          │ │
+│  └──────────────────────────────────────────────────────────┘ │
+│                                                                 │
+└────────────────────────────────────────────────────────────────┘
+```
+
+### Complete Request-Response Example
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ 1. USER INPUT (Frontend)                                       │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│ Form Data:                                                      │
+│ • description: "Feeling dizzy, pale, tired with heavy flow"   │
+│ • fatigue_level: 8                                              │
+│ • sleep_quality: 3                                             │
+│                                                                 │
+│ POST /analysis/analyze                                          │
+│ Authorization: Bearer <jwt_token>                               │
+│                                                                 │
+└────────────────────────────┬────────────────────────────────────┘
+                             │
+                             ▼
+┌─────────────────────────────────────────────────────────────────┐
+│ 2. BACKEND PROCESSING                                          │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│ a) Validate token (JWT)                                        │
+│    └─► Get user ID from token                                  │
+│                                                                 │
+│ b) Fetch user history from DB                                  │
+│    └─► Get last 5 periods                                      │
+│    └─► Get last 5 symptoms                                     │
+│                                                                 │
+│ c) Calculate features                                          │
+│    • avg_cycle_length: 28 days                                 │
+│    • cycle_variation: 2 days                                   │
+│    • recent_fatigue_avg: 6.5                                    │
+│    • recent_sleep_avg: 5.2                                     │
+│                                                                 │
+│ d) Run ML prediction                                           │
+│    └─► Build feature vector                                    │
+│    └─► Call XGBoost model                                      │
+│    └─► Get probabilities: [0.85, 0.08, 0.03, 0.02, 0.01, 0.01]│
+│                                                                 │
+│ e) Get India context                                           │
+│    └─► Get state (Tamil Nadu)                                   │
+│    └─► Get diet recommendations                                │
+│    └─► Get AQI data                                            │
+│    └─► Get government schemes                                   │
+│                                                                 │
+│ f) Save analysis to database                                   │
+│                                                                 │
+└────────────────────────────┬────────────────────────────────────┘
+                             │
+                             ▼
+┌─────────────────────────────────────────────────────────────────┐
+│ 3. RESPONSE (Frontend)                                         │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│ {                                                              │
+│   "risk_type": "iron_deficiency_anemia",                      │
+│   "confidence_score": 0.85,                                   │
+│   "confidence_label": "high",                                 │
+│   "recommendations": [                                         │
+│     "Consider CBC and ferritin tests.",                        │
+│     "Include iron-rich foods: ragi, lentils, spinach"        │
+│   ],                                                            │
+│   "india_context": "Low iron intake is common...",            │
+│   "diet_recommendations": ["Prioritize iron-rich meals..."],   │
+│   "aqi_enrichment": {"city": "Chennai", "aqi_value": 85},     │
+│   "government_schemes": ["Pradhan Mantri Matru..."],           │
+│   "medical_disclaimer": "This is not a diagnosis..."           │
+│ }                                                              │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Key Files & Their Purpose
+
+| File | Purpose |
+|------|---------|
+| `app/main.py` | FastAPI app setup, CORS, route registration |
+| `app/auth.py` | JWT token creation/verification, password hashing |
+| `app/database.py` | SQLAlchemy engine, session, base |
+| `app/models/models.py` | User, Period, Symptom, HealthAnalysis tables |
+| `app/routers/auth.py` | /auth/register, /auth/login, /auth/me |
+| `app/routers/periods.py` | Period CRUD, calendar with prediction |
+| `app/routers/symptoms.py` | Symptom CRUD with validation |
+| `app/routers/analysis.py` | ML analysis endpoint |
+| `app/ml/xgb_model.py` | ML model, features, prediction |
+| `app/services/india_context.py` | Diet, AQI, schemes, costs |
+| `frontend/app.js` | API calls, UI updates, theme toggle |
+| `frontend/styles.css` | All styling with CSS variables |
+
+---
+
+## 7. Database Schema
 
 ### Users Table
 ```python
@@ -161,7 +527,7 @@ class HealthAnalysis(Base):
 
 ---
 
-## 5. API Endpoints
+## 8. API Endpoints
 
 ### Authentication (`/auth`)
 | Endpoint | Method | Description |
@@ -191,7 +557,7 @@ class HealthAnalysis(Base):
 
 ---
 
-## 6. ML Model Details
+## 9. ML Model Details
 
 ### Model Architecture
 
@@ -272,7 +638,7 @@ KEYWORDS = {
 
 ---
 
-## 7. India Context Features
+## 10. India Context Features
 
 ### State-Based Diet Recommendations
 - Different states have different dietary recommendations
@@ -299,7 +665,7 @@ KEYWORDS = {
 
 ---
 
-## 8. Frontend Features
+## 11. Frontend Features
 
 ### Pages
 1. **Login Page** - Email/password authentication
@@ -326,7 +692,7 @@ KEYWORDS = {
 
 ---
 
-## 9. Testing
+## 12. Testing
 
 ### Backend Tests (8 tests)
 
@@ -350,7 +716,7 @@ pytest tests/ -v
 
 ---
 
-## 10. Deployment
+## 13. Deployment
 
 ### Backend (Render/Vercel/AWS)
 ```bash
@@ -381,26 +747,27 @@ python -m http.server 5173
 
 ```
 she-intel-india/
-├── README.md                 # Project overview
-├── requirements.txt          # Python dependencies
-├── run_all.sh               # Start both servers
-├── stop_all.sh              # Stop servers
-├── render.yaml              # Render deployment config
+├── PROJECT_DETAILS.md       # This file
+├── README.md               # Quick start guide
+├── requirements.txt        # Python dependencies
+├── run_all.sh             # Start both servers
+├── stop_all.sh            # Stop servers
+├── render.yaml            # Render deployment config
 │
 ├── backend/
 │   ├── app/
-│   │   ├── main.py          # FastAPI app entry point
-│   │   ├── auth.py          # JWT authentication
-│   │   ├── database.py      # SQLAlchemy setup
+│   │   ├── main.py         # FastAPI app entry point
+│   │   ├── auth.py         # JWT authentication
+│   │   ├── database.py     # SQLAlchemy setup
 │   │   ├── models/
-│   │   │   └── models.py    # Database models
+│   │   │   └── models.py   # Database models
 │   │   ├── routers/
-│   │   │   ├── auth.py      # Auth endpoints
-│   │   │   ├── periods.py   # Period endpoints
-│   │   │   ├── symptoms.py  # Symptom endpoints
-│   │   │   └── analysis.py  # Analysis endpoints
+│   │   │   ├── auth.py     # Auth endpoints
+│   │   │   ├── periods.py  # Period endpoints
+│   │   │   ├── symptoms.py # Symptom endpoints
+│   │   │   └── analysis.py # Analysis endpoints
 │   │   ├── ml/
-│   │   │   ├── xgb_model.py # ML model code
+│   │   │   ├── xgb_model.py    # ML model code
 │   │   │   └── artifacts/
 │   │   │       └── xgb_model.joblib
 │   │   └── services/
@@ -412,9 +779,9 @@ she-intel-india/
 │       └── seed_demo_data.py # Demo data seeder
 │
 └── frontend/
-    ├── index.html           # Main HTML
-    ├── app.js              # Frontend logic
-    └── styles.css          # Styling
+    ├── index.html          # Main HTML
+    ├── app.js             # Frontend logic
+    └── styles.css         # Styling
 ```
 
 ---
@@ -422,10 +789,10 @@ she-intel-india/
 ## Summary
 
 SHE-INTEL INDIA is a complete full-stack health intelligence application with:
-- ✅ User authentication
+- ✅ User authentication (register/login/JWT)
 - ✅ Period & symptom tracking
-- ✅ ML-powered risk prediction (XGBoost)
-- ✅ India-specific context
-- ✅ Responsive frontend
+- ✅ ML-powered risk prediction (XGBoost) with NLP keyword extraction
+- ✅ India-specific context (diet, AQI, schemes, costs)
+- ✅ Responsive frontend with dark/light mode
 - ✅ Comprehensive testing
 - ✅ Ready for deployment
