@@ -39,5 +39,8 @@ build/
 .build/
 node_modules/
 
+# Local backups
+.backup/
+
 # Logs
 *.log

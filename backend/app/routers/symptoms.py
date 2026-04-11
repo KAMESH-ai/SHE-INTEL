@@ -1,7 +1,7 @@
 from datetime import datetime, UTC
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from ..database import get_db
 from ..models.models import Symptom, User
@@ -25,6 +25,15 @@ class SymptomCreate(BaseModel):
         if not text:
             raise ValueError("description cannot be empty")
         return text
+
+    @field_validator("date")
+    @classmethod
+    def validate_entry_date(cls, value: Optional[datetime]) -> Optional[datetime]:
+        if value is None:
+            return value
+        if value.date() > datetime.now(UTC).date():
+            raise ValueError("date cannot be in the future")
+        return value
 
 
 class SymptomResponse(BaseModel):
@@ -64,11 +73,16 @@ def get_symptoms(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
     limit: int = Query(default=30, ge=1, le=365),
+    start_date: Optional[datetime] = Query(default=None),
+    end_date: Optional[datetime] = Query(default=None),
 ):
-    return (
-        db.query(Symptom)
-        .filter(Symptom.user_id == current_user.id)
-        .order_by(Symptom.date.desc())
-        .limit(limit)
-        .all()
-    )
+    if start_date and end_date and start_date > end_date:
+        raise HTTPException(status_code=400, detail="start_date must be before end_date")
+
+    query = db.query(Symptom).filter(Symptom.user_id == current_user.id)
+    if start_date:
+        query = query.filter(Symptom.date >= start_date)
+    if end_date:
+        query = query.filter(Symptom.date <= end_date)
+
+    return query.order_by(Symptom.date.desc()).limit(limit).all()

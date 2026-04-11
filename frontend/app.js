@@ -1,7 +1,7 @@
 const isLocalHost = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+const storedApiUrl = localStorage.getItem('she_intel_api_url');
 const API_URL = window.SHE_INTEL_API_URL
-  || localStorage.getItem('she_intel_api_url')
-  || (isLocalHost ? 'http://localhost:8002' : window.location.origin);
+  || (isLocalHost ? 'http://localhost:8002' : (storedApiUrl || window.location.origin));
 
 // Toast notification system
 function showToast(message, type = 'success') {
@@ -53,7 +53,6 @@ function setButtonLoading(button, loading) {
 function setupCharCounters() {
   const counters = [
     { input: 'symptom-desc', counter: 'symptom-desc-counter', max: 2000 },
-    { input: 'analyze-desc', counter: 'analyze-desc-counter', max: 2000 },
     { input: 'period-symptoms', counter: 'period-symptoms-counter', max: 1000 }
   ];
 
@@ -87,8 +86,17 @@ function setupTabNavigation() {
   });
 }
 
-let currentTab = 'overview';
 let userData = null;
+let calendarPeriods = [];
+let symptomEntries = [];
+const calendarViewDate = new Date();
+calendarViewDate.setDate(1);
+let editingPeriodId = null;
+
+function normalizeDateOnly(dateInput) {
+  const parsed = new Date(dateInput);
+  return new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
+}
 
 function escapeHtml(value) {
   return String(value ?? '')
@@ -97,6 +105,45 @@ function escapeHtml(value) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
+}
+
+function resetDashboardState() {
+  calendarPeriods = [];
+  symptomEntries = [];
+  editingPeriodId = null;
+
+  const periodForm = document.getElementById('period-form');
+  if (periodForm) periodForm.reset();
+  const symptomForm = document.getElementById('symptom-form');
+  if (symptomForm) symptomForm.reset();
+  const analyzeForm = document.getElementById('analyze-form');
+  if (analyzeForm) analyzeForm.reset();
+
+  const periodBtnText = document.querySelector('#period-form .btn-text');
+  if (periodBtnText) periodBtnText.textContent = 'Log Period';
+
+  const fatigueVal = document.getElementById('fatigue-val');
+  if (fatigueVal) fatigueVal.textContent = '5';
+  const sleepVal = document.getElementById('sleep-val');
+  if (sleepVal) sleepVal.textContent = '5';
+
+  const symptomFatigue = document.getElementById('symptom-fatigue');
+  if (symptomFatigue) symptomFatigue.value = '5';
+  const symptomSleep = document.getElementById('symptom-sleep');
+  if (symptomSleep) symptomSleep.value = '5';
+
+  const analyzeSelect = document.getElementById('analyze-symptom-entry');
+  if (analyzeSelect) analyzeSelect.innerHTML = '<option value="latest">Latest entry</option>';
+
+  const analysisResult = document.getElementById('analysis-result');
+  if (analysisResult) {
+    analysisResult.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">◇</div>
+        <p>Select a symptom entry and click Analyze</p>
+      </div>
+    `;
+  }
 }
 
 // Theme toggle
@@ -136,10 +183,15 @@ async function apiRequest(endpoint, options = {}, fallbackMessage = 'API error')
     ...(options.headers || {})
   };
 
-  const response = await fetch(`${API_URL}${endpoint}`, {
-    ...options,
-    headers
-  });
+  let response;
+  try {
+    response = await fetch(`${API_URL}${endpoint}`, {
+      ...options,
+      headers
+    });
+  } catch (err) {
+    throw new Error(`Failed to reach API at ${API_URL}. Ensure backend is running on port 8002.`);
+  }
 
   if (!response.ok) {
     if (response.status === 401 && window.token) {
@@ -170,7 +222,6 @@ function showPage(page) {
 }
 
 function setTab(tab) {
-  currentTab = tab;
   document.querySelectorAll('.sidebar-item').forEach(item => {
     item.classList.toggle('active', item.dataset.tab === tab);
   });
@@ -182,7 +233,13 @@ function setTab(tab) {
   if (tab === 'overview') loadOverview();
   if (tab === 'periods') loadPeriods();
   if (tab === 'symptoms') loadSymptoms();
+  if (tab === 'analyze') loadSymptoms();
   if (tab === 'history') loadHistory();
+}
+
+function changeCalendarMonth(delta) {
+  calendarViewDate.setMonth(calendarViewDate.getMonth() + delta);
+  renderCalendar(calendarPeriods);
 }
 
 function showError(elementId, message) {
@@ -194,13 +251,6 @@ function showError(elementId, message) {
 
 function getToken() {
   return localStorage.getItem('token');
-}
-
-function setAuthHeader() {
-  const token = getToken();
-  if (token) {
-    window.token = token;
-  }
 }
 
 // Auth
@@ -230,6 +280,7 @@ async function fetchUser() {
 function logout() {
   localStorage.removeItem('token');
   window.token = null;
+  resetDashboardState();
   showPage('login');
 }
 
@@ -244,6 +295,20 @@ async function apiPost(endpoint, data) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
   }, 'Failed to submit data');
+}
+
+async function apiPut(endpoint, data) {
+  return apiRequest(endpoint, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  }, 'Failed to update data');
+}
+
+async function apiDelete(endpoint) {
+  return apiRequest(endpoint, {
+    method: 'DELETE'
+  }, 'Failed to delete data');
 }
 
 // Dashboard Functions
@@ -281,11 +346,29 @@ async function loadOverview() {
       document.getElementById('next-date').textContent = nextDate.toLocaleDateString('en-IN', {
         day: 'numeric', month: 'short'
       });
+      const cycleNoteEl = document.getElementById('cycle-note');
+      if (cycleNoteEl) {
+        cycleNoteEl.textContent = calendarRes.prediction.cycle_note || '';
+      }
+
+      if (calendarRes.prediction.display_month) {
+        const displayMonthDate = new Date(calendarRes.prediction.display_month);
+        calendarViewDate.setFullYear(displayMonthDate.getFullYear(), displayMonthDate.getMonth(), 1);
+      }
     } else {
       document.getElementById('avg-cycle').textContent = '--';
+      const cycleNoteEl = document.getElementById('cycle-note');
+      if (cycleNoteEl) {
+        cycleNoteEl.textContent = 'Log at least two cycles to detect abnormal cycle trends.';
+      }
+      if (periodsRes.length) {
+        const latestPeriod = new Date(periodsRes[0].start_date);
+        calendarViewDate.setFullYear(latestPeriod.getFullYear(), latestPeriod.getMonth(), 1);
+      }
     }
 
-    renderCalendar(periodsRes);
+    calendarPeriods = periodsRes;
+    renderCalendar(calendarPeriods);
   } catch (err) {
     console.error('Error loading overview:', err);
     // Still hide skeletons on error
@@ -298,8 +381,8 @@ async function loadOverview() {
 
 function renderCalendar(periods) {
   const today = new Date();
-  const year = today.getFullYear();
-  const month = today.getMonth();
+  const year = calendarViewDate.getFullYear();
+  const month = calendarViewDate.getMonth();
   const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -307,6 +390,7 @@ function renderCalendar(periods) {
 
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const daysInPrevMonth = new Date(year, month, 0).getDate();
 
   let html = '<div class="calendar-day-header">Sun</div>';
   html += '<div class="calendar-day-header">Mon</div>';
@@ -316,17 +400,25 @@ function renderCalendar(periods) {
   html += '<div class="calendar-day-header">Fri</div>';
   html += '<div class="calendar-day-header">Sat</div>';
 
-  for (let i = 0; i < firstDay; i++) {
-    html += '<div class="calendar-day empty"></div>';
+  for (let i = firstDay - 1; i >= 0; i--) {
+    html += `<div class="calendar-day other-month">${daysInPrevMonth - i}</div>`;
   }
 
   for (let day = 1; day <= daysInMonth; day++) {
     const current = new Date(year, month, day);
-    const isToday = day === today.getDate();
+    const currentMs = current.getTime();
+    const isToday =
+      day === today.getDate() &&
+      month === today.getMonth() &&
+      year === today.getFullYear();
     const isPeriod = periods.some(p => {
-      const start = new Date(p.start_date);
-      const end = p.end_date ? new Date(p.end_date) : start;
-      return current >= start && current <= end;
+      const start = normalizeDateOnly(p.start_date);
+      const end = p.end_date ? normalizeDateOnly(p.end_date) : start;
+      const durationDays = Math.floor((end.getTime() - start.getTime()) / (24 * 60 * 60 * 1000)) + 1;
+      if (durationDays < 1) {
+        return false;
+      }
+      return currentMs >= start.getTime() && currentMs <= end.getTime();
     });
 
     let classes = 'calendar-day';
@@ -334,6 +426,12 @@ function renderCalendar(periods) {
     if (isToday) classes += ' today';
 
     html += `<div class="${classes}">${day}</div>`;
+  }
+
+  const filledCells = firstDay + daysInMonth;
+  const trailingDays = (7 - (filledCells % 7)) % 7;
+  for (let day = 1; day <= trailingDays; day++) {
+    html += `<div class="calendar-day other-month">${day}</div>`;
   }
 
   document.getElementById('calendar').innerHTML = html;
@@ -357,26 +455,97 @@ function renderPeriodHistory(periods) {
   let html = '';
   periods.forEach(p => {
     const start = new Date(p.start_date).toLocaleDateString('en-IN');
+    const end = p.end_date ? new Date(p.end_date).toLocaleDateString('en-IN') : null;
     html += `
       <div class="history-item">
         <div class="history-item-header">
-          <span class="history-risk">${start}</span>
+          <span class="history-risk">${start}${end ? ` - ${end}` : ''}</span>
           <span class="history-score">${p.flow_level || 'N/A'}</span>
         </div>
         ${p.symptoms ? `<p class="history-note">${escapeHtml(p.symptoms)}</p>` : ''}
+        <div class="period-actions">
+          <button type="button" class="btn btn-ghost period-action-btn" onclick="startEditPeriod(${p.id})">Edit</button>
+          <button type="button" class="btn btn-ghost period-action-btn" onclick="deletePeriod(${p.id})">Delete</button>
+        </div>
       </div>
     `;
   });
   document.getElementById('period-history').innerHTML = html;
 }
 
+function formatDateInput(value) {
+  if (!value) return '';
+  const d = new Date(value);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+async function startEditPeriod(periodId) {
+  try {
+    const periods = await apiGet('/periods/');
+    const period = periods.find(item => item.id === periodId);
+    if (!period) {
+      showToast('Period entry not found', 'error');
+      return;
+    }
+
+    editingPeriodId = period.id;
+    document.getElementById('period-start').value = formatDateInput(period.start_date);
+    document.getElementById('period-end').value = formatDateInput(period.end_date);
+    document.getElementById('period-flow').value = period.flow_level || '';
+    document.getElementById('period-symptoms').value = period.symptoms || '';
+    const submitText = document.querySelector('#period-form .btn-text');
+    if (submitText) submitText.textContent = 'Update Period';
+    showToast('Editing period entry', 'warning');
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+async function deletePeriod(periodId) {
+  const confirmed = window.confirm('Delete this period entry?');
+  if (!confirmed) return;
+
+  try {
+    await apiDelete(`/periods/${periodId}`);
+    if (editingPeriodId === periodId) {
+      editingPeriodId = null;
+      document.getElementById('period-form').reset();
+      const submitText = document.querySelector('#period-form .btn-text');
+      if (submitText) submitText.textContent = 'Log Period';
+    }
+    loadPeriods();
+    loadOverview();
+    showToast('Period deleted', 'success');
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
 async function loadSymptoms() {
   try {
     const symptoms = await apiGet('/symptoms/');
+    symptomEntries = symptoms;
     renderSymptomHistory(symptoms);
+    populateAnalyzeSymptomOptions(symptoms);
   } catch (err) {
     console.error('Error:', err);
   }
+}
+
+function populateAnalyzeSymptomOptions(symptoms) {
+  const select = document.getElementById('analyze-symptom-entry');
+  if (!select) return;
+
+  let html = '<option value="latest">Latest entry</option>';
+  symptoms.slice(0, 30).forEach((entry) => {
+    const date = new Date(entry.date).toLocaleDateString('en-IN');
+    const desc = escapeHtml(entry.description.substring(0, 36));
+    html += `<option value="${entry.id}">${date} - ${desc}${entry.description.length > 36 ? '...' : ''}</option>`;
+  });
+  select.innerHTML = html;
 }
 
 function renderSymptomHistory(symptoms) {
@@ -448,6 +617,7 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchUser().then(user => {
       userData = user;
       document.getElementById('user-name').textContent = user.name;
+      resetDashboardState();
       showPage('dashboard');
       loadOverview();
     }).catch(() => logout());
@@ -469,6 +639,7 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
     );
     userData = await fetchUser();
     document.getElementById('user-name').textContent = userData.name;
+    resetDashboardState();
     showPage('dashboard');
     loadOverview();
     showToast('Welcome back!', 'success');
@@ -498,6 +669,7 @@ document.getElementById('register-form').addEventListener('submit', async (e) =>
     await login(data.email, data.password);
     userData = await fetchUser();
     document.getElementById('user-name').textContent = userData.name;
+    resetDashboardState();
     showPage('dashboard');
     loadOverview();
     showToast('Account created! Welcome!', 'success');
@@ -525,16 +697,27 @@ document.getElementById('period-form').addEventListener('submit', async (e) => {
   setButtonLoading(btn, true);
 
   try {
-    await apiPost('/periods/', {
+    const payload = {
       start_date: startDate,
       end_date: endDate || null,
       flow_level: document.getElementById('period-flow').value || null,
       symptoms: document.getElementById('period-symptoms').value || null
-    });
+    };
+
+    if (editingPeriodId) {
+      await apiPut(`/periods/${editingPeriodId}`, payload);
+      showToast('Period updated successfully!', 'success');
+    } else {
+      await apiPost('/periods/', payload);
+      showToast('Period logged successfully!', 'success');
+    }
+
     e.target.reset();
+    editingPeriodId = null;
+    const submitText = document.querySelector('#period-form .btn-text');
+    if (submitText) submitText.textContent = 'Log Period';
     loadPeriods();
     loadOverview();
-    showToast('Period logged successfully!', 'success');
   } catch (err) {
     showToast(err.message, 'error');
   } finally {
@@ -549,11 +732,13 @@ document.getElementById('symptom-form').addEventListener('submit', async (e) => 
   setButtonLoading(btn, true);
 
   try {
+    const symptomDate = document.getElementById('symptom-date').value;
     await apiPost('/symptoms/', {
       description: document.getElementById('symptom-desc').value,
       fatigue_level: parseInt(document.getElementById('symptom-fatigue').value),
       sleep_quality: parseInt(document.getElementById('symptom-sleep').value),
-      mood: document.getElementById('symptom-mood').value || null
+      mood: document.getElementById('symptom-mood').value || null,
+      date: symptomDate ? `${symptomDate}T00:00:00` : null
     });
     e.target.reset();
     document.getElementById('symptom-fatigue').value = '5';
@@ -580,11 +765,21 @@ document.getElementById('analyze-form').addEventListener('submit', async (e) => 
   resultDiv.innerHTML = '<div class="loading-container"><div class="loader"></div><p>Analyzing...</p></div>';
 
   try {
-    const data = {
-      description: document.getElementById('analyze-desc').value,
-      fatigue_level: parseInt(document.getElementById('analyze-fatigue').value),
-      sleep_quality: parseInt(document.getElementById('analyze-sleep').value)
-    };
+    if (!symptomEntries.length) {
+      resultDiv.innerHTML = '<div class="error-msg">No symptom logs found. Log symptoms first.</div>';
+      showToast('Please log symptoms before running analysis', 'warning');
+      return;
+    }
+
+    const data = {};
+    const selectedEntry = document.getElementById('analyze-symptom-entry').value;
+    const selectedDate = document.getElementById('analyze-date').value;
+    if (selectedEntry && selectedEntry !== 'latest') {
+      data.symptom_id = parseInt(selectedEntry);
+    }
+    if (selectedDate) {
+      data.symptom_date = `${selectedDate}T00:00:00`;
+    }
 
     const result = await apiPost('/analysis/analyze', data);
     renderAnalysisResult(result);
@@ -599,19 +794,18 @@ document.getElementById('analyze-form').addEventListener('submit', async (e) => 
 
 function renderAnalysisResult(result) {
   const percent = Math.round(result.confidence_score * 100);
-  const riskClass = result.confidence_label === 'high' ? 'risk-high' : result.confidence_label === 'medium' ? 'risk-medium' : 'risk-low';
+  const riskLevel = (result.risk_level || '').toLowerCase();
+  const riskClass = riskLevel === 'high' ? 'risk-high' : riskLevel === 'moderate' ? 'risk-medium' : 'risk-low';
   const circumference = 2 * Math.PI * 65;
   const offset = circumference * (1 - result.confidence_score);
 
   const aqi = result.aqi_enrichment || {};
   const schemes = Array.isArray(result.government_schemes) ? result.government_schemes : [];
-  const labEstimates = Array.isArray(result.lab_test_cost_estimates) ? result.lab_test_cost_estimates : [];
-  const metrics = result.model_metrics || {};
+  const cycleMetrics = result.cycle_metrics || {};
 
   const safeRiskType = escapeHtml(result.risk_type.replace(/_/g, ' '));
+  const safeRiskLevel = escapeHtml(result.risk_level || 'Low');
   const safeConfidenceLabel = escapeHtml(result.confidence_label);
-  const accuracy = Number.isFinite(metrics.accuracy) ? `${(metrics.accuracy * 100).toFixed(1)}%` : 'N/A';
-  const macroF1 = Number.isFinite(metrics.macro_f1) ? `${(metrics.macro_f1 * 100).toFixed(1)}%` : 'N/A';
 
   let html = `
     <div class="result-card">
@@ -622,7 +816,8 @@ function renderAnalysisResult(result) {
         </svg>
         <div class="ring-text">
           <div class="ring-value">${percent}%</div>
-          <div class="ring-label">${safeConfidenceLabel} risk</div>
+          <div class="ring-label">${safeRiskLevel} risk</div>
+          <div class="ring-subtext">Confidence ${safeConfidenceLabel}</div>
         </div>
       </div>
       <div class="risk-type">${safeRiskType}</div>
@@ -633,6 +828,32 @@ function renderAnalysisResult(result) {
       <div class="context-section">
         <div class="context-title">📊 Your Baseline</div>
         <div class="context-text">${escapeHtml(result.baseline_deviation)}</div>
+      </div>
+    `;
+  }
+
+  if (result.cycle_insight) {
+    const avgCycle = Number.isFinite(cycleMetrics.avg_cycle_length) ? cycleMetrics.avg_cycle_length : 'N/A';
+    const variation = Number.isFinite(cycleMetrics.cycle_variation) ? cycleMetrics.cycle_variation : 'N/A';
+    const cycleDay = Number.isFinite(cycleMetrics.cycle_day) ? cycleMetrics.cycle_day : 'N/A';
+    html += `
+      <div class="context-section">
+        <div class="context-title">🩸 Cycle Intelligence</div>
+        <div class="context-text">
+          ${escapeHtml(result.cycle_insight)}
+          <br>Avg cycle: ${escapeHtml(avgCycle)} days
+          <br>Variation: ${escapeHtml(variation)} days
+          <br>Cycle day: ${escapeHtml(cycleDay)}
+        </div>
+      </div>
+    `;
+  }
+
+  if (result.health_insight_report) {
+    html += `
+      <div class="context-section">
+        <div class="context-title">🧾 Health Insight Report</div>
+        <div class="context-text report-block">${escapeHtml(result.health_insight_report).replace(/\n/g, '<br>')}</div>
       </div>
     `;
   }
@@ -688,34 +909,11 @@ function renderAnalysisResult(result) {
     `;
   }
 
-  if (labEstimates.length) {
-    html += `
-      <div class="context-section">
-        <div class="context-title">🧪 Lab Cost Estimates</div>
-        <div class="context-text">
-          ${labEstimates.map(item => `• ${escapeHtml(item.test)}: Rs ${item.estimated_low_inr} - Rs ${item.estimated_high_inr} (${escapeHtml(item.city)})`).join('<br>')}
-        </div>
-      </div>
-    `;
-  }
-
   if (result.bias_awareness) {
     html += `
       <div class="context-section">
         <div class="context-title">⚖️ Bias Awareness</div>
         <div class="context-text">${escapeHtml(result.bias_awareness)}</div>
-      </div>
-    `;
-  }
-
-  if (Number.isFinite(metrics.accuracy) || Number.isFinite(metrics.macro_f1)) {
-    html += `
-      <div class="context-section">
-        <div class="context-title">📈 Model Metrics</div>
-        <div class="context-text">
-          Accuracy: ${accuracy}
-          <br>Macro F1: ${macroF1}
-        </div>
       </div>
     `;
   }

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
   <link rel="stylesheet" href="styles.css">
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
+
 <body>
   <div id="app">
     <div id="toast-container" class="toast-container" aria-live="polite"></div>
@@ -20,7 +22,7 @@
           </div>
           <h1 class="auth-title">Welcome back</h1>
           <p class="auth-subtitle">Your personal health companion</p>
-          
+
           <form id="login-form">
             <div class="input-group">
               <label class="input-label">Email</label>
@@ -35,7 +37,7 @@
               <span class="btn-text">Sign In</span>
             </button>
           </form>
-          
+
           <p class="auth-footer">New here? <a href="#" onclick="showPage('register')">Create account</a></p>
         </div>
       </div>
@@ -51,7 +53,7 @@
           </div>
           <h1 class="auth-title">Create account</h1>
           <p class="auth-subtitle">Start your health journey with AI</p>
-          
+
           <form id="register-form">
             <div class="input-group">
               <label class="input-label">Full Name</label>
@@ -63,7 +65,8 @@
             </div>
             <div class="input-group">
               <label class="input-label">Password</label>
-              <input type="password" id="reg-password" class="input-field" placeholder="Min 6 characters" required minlength="6">
+              <input type="password" id="reg-password" class="input-field" placeholder="Min 6 characters" required
+                minlength="6">
             </div>
             <div class="grid grid-2">
               <div class="input-group">
@@ -92,7 +95,7 @@
               <span class="btn-text">Create Account</span>
             </button>
           </form>
-          
+
           <p class="auth-footer">Already have an account? <a href="#" onclick="showPage('login')">Sign in</a></p>
         </div>
       </div>
@@ -121,11 +124,16 @@
         <div class="dashboard-grid">
           <aside class="sidebar">
             <ul class="sidebar-menu">
-              <li class="sidebar-item active" onclick="setTab('overview')" data-tab="overview" role="button" tabindex="0" aria-label="Overview tab">Overview</li>
-              <li class="sidebar-item" onclick="setTab('periods')" data-tab="periods" role="button" tabindex="0" aria-label="Periods tab">Periods</li>
-              <li class="sidebar-item" onclick="setTab('symptoms')" data-tab="symptoms" role="button" tabindex="0" aria-label="Symptoms tab">Symptoms</li>
-              <li class="sidebar-item" onclick="setTab('analyze')" data-tab="analyze" role="button" tabindex="0" aria-label="Analyze tab">Analyze</li>
-              <li class="sidebar-item" onclick="setTab('history')" data-tab="history" role="button" tabindex="0" aria-label="History tab">History</li>
+              <li class="sidebar-item active" onclick="setTab('overview')" data-tab="overview" role="button"
+                tabindex="0" aria-label="Overview tab">Overview</li>
+              <li class="sidebar-item" onclick="setTab('periods')" data-tab="periods" role="button" tabindex="0"
+                aria-label="Periods tab">Periods</li>
+              <li class="sidebar-item" onclick="setTab('symptoms')" data-tab="symptoms" role="button" tabindex="0"
+                aria-label="Symptoms tab">Symptoms</li>
+              <li class="sidebar-item" onclick="setTab('analyze')" data-tab="analyze" role="button" tabindex="0"
+                aria-label="Analyze tab">Analyze</li>
+              <li class="sidebar-item" onclick="setTab('history')" data-tab="history" role="button" tabindex="0"
+                aria-label="History tab">History</li>
             </ul>
           </aside>
 
@@ -135,7 +143,8 @@
               <div class="grid grid-2">
                 <div class="card">
                   <h3 class="card-title">Cycle Status</h3>
-                  <div id="cycle-skeleton" class="skeleton" style="height: 80px; border-radius: 8px; margin-bottom: 0.5rem;"></div>
+                  <div id="cycle-skeleton" class="skeleton"
+                    style="height: 80px; border-radius: 8px; margin-bottom: 0.5rem;"></div>
                   <div id="cycle-content" class="hidden">
                     <div class="stat-box">
                       <div class="stat-value" id="avg-cycle">--</div>
@@ -145,6 +154,7 @@
                       <small>Next Period</small>
                       <div class="next-date" id="next-date">--</div>
                     </div>
+                    <div class="cycle-note" id="cycle-note"></div>
                   </div>
                 </div>
                 <div class="card">
@@ -158,9 +168,13 @@
                   </div>
                 </div>
                 <div class="card" style="grid-column:span 2">
-                  <h3 class="card-title">This Month</h3>
+                  <h3 class="card-title">Cycle Calendar</h3>
                   <div class="calendar-header">
+                    <button type="button" class="calendar-nav-btn" onclick="changeCalendarMonth(-1)"
+                      aria-label="Previous month">&#8249;</button>
                     <span id="current-month"></span>
+                    <button type="button" class="calendar-nav-btn" onclick="changeCalendarMonth(1)"
+                      aria-label="Next month">&#8250;</button>
                   </div>
                   <div class="calendar-grid" id="calendar"></div>
                 </div>
@@ -193,12 +207,13 @@
                   </div>
                   <div class="input-group">
                     <label class="input-label">Symptoms (optional)</label>
-                    <textarea id="period-symptoms" class="input-field textarea" placeholder="Any symptoms..." maxlength="1000" aria-describedby="period-symptoms-counter"></textarea>
+                    <textarea id="period-symptoms" class="input-field textarea" placeholder="Any symptoms..."
+                      maxlength="1000" aria-describedby="period-symptoms-counter"></textarea>
                     <div id="period-symptoms-counter" class="char-counter">0 / 1000</div>
                   </div>
                   <button type="submit" class="btn btn-primary">
-              <span class="btn-text">Log Period</span>
-            </button>
+                    <span class="btn-text">Log Period</span>
+                  </button>
                 </form>
               </div>
               <div class="card" style="margin-top:1.5rem">
@@ -214,18 +229,25 @@
                   <h3 class="card-title">Log Symptoms</h3>
                   <form id="symptom-form">
                     <div class="input-group">
+                      <label class="input-label">Entry Date</label>
+                      <input id="symptom-date" type="date" class="input-field">
+                    </div>
+                    <div class="input-group">
                       <label class="input-label">Description</label>
-                      <textarea id="symptom-desc" class="input-field textarea" placeholder="Describe how you feel..." required maxlength="2000" aria-describedby="symptom-desc-counter"></textarea>
+                      <textarea id="symptom-desc" class="input-field textarea" placeholder="Describe how you feel..."
+                        required maxlength="2000" aria-describedby="symptom-desc-counter"></textarea>
                       <div id="symptom-desc-counter" class="char-counter">0 / 2000</div>
                     </div>
                     <div class="grid grid-2">
                       <div class="input-group">
                         <label class="input-label">Fatigue: <span id="fatigue-val">5</span></label>
-                        <input type="range" id="symptom-fatigue" min="1" max="10" value="5" oninput="document.getElementById('fatigue-val').textContent=this.value">
+                        <input type="range" id="symptom-fatigue" min="1" max="10" value="5"
+                          oninput="document.getElementById('fatigue-val').textContent=this.value">
                       </div>
                       <div class="input-group">
                         <label class="input-label">Sleep: <span id="sleep-val">5</span></label>
-                        <input type="range" id="symptom-sleep" min="1" max="10" value="5" oninput="document.getElementById('sleep-val').textContent=this.value">
+                        <input type="range" id="symptom-sleep" min="1" max="10" value="5"
+                          oninput="document.getElementById('sleep-val').textContent=this.value">
                       </div>
                     </div>
                     <div class="input-group">
@@ -256,22 +278,17 @@
               <div class="grid grid-2">
                 <div class="card">
                   <h3 class="card-title">Health Analysis</h3>
-                  <p class="input-label">Describe how you're feeling to get AI insights</p>
+                  <p class="input-label">Use your logged symptom entries for AI insights</p>
                   <form id="analyze-form">
                     <div class="input-group">
-                      <label class="input-label">What are you experiencing?</label>
-                      <textarea id="analyze-desc" class="input-field textarea" placeholder="I've been feeling very tired lately..." required maxlength="2000" aria-describedby="analyze-desc-counter"></textarea>
-                      <div id="analyze-desc-counter" class="char-counter">0 / 2000</div>
+                      <label class="input-label">Symptom Entry</label>
+                      <select id="analyze-symptom-entry" class="input-field select-field">
+                        <option value="latest">Latest entry</option>
+                      </select>
                     </div>
-                    <div class="grid grid-2">
-                      <div class="input-group">
-                        <label class="input-label">Fatigue: <span id="analyze-fatigue-val">5</span></label>
-                        <input type="range" id="analyze-fatigue" min="1" max="10" value="5" oninput="document.getElementById('analyze-fatigue-val').textContent=this.value">
-                      </div>
-                      <div class="input-group">
-                        <label class="input-label">Sleep: <span id="analyze-sleep-val">5</span></label>
-                        <input type="range" id="analyze-sleep" min="1" max="10" value="5" oninput="document.getElementById('analyze-sleep-val').textContent=this.value">
-                      </div>
+                    <div class="input-group">
+                      <label class="input-label">Or Analyze by Date (optional)</label>
+                      <input id="analyze-date" type="date" class="input-field">
                     </div>
                     <button type="submit" class="btn btn-primary" style="width:100%">
                       <span class="btn-text">Analyze</span>
@@ -305,4 +322,5 @@
 
   <script src="app.js"></script>
 </body>
+
 </html>

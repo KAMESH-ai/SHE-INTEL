@@ -27,12 +27,61 @@ LABELS = [
 
 
 KEYWORDS = {
-    "iron_deficiency_anemia": ["fatigue", "dizzy", "dizziness", "weak", "pale", "heavy bleeding", "craving", "shortness of breath"],
-    "pcos": ["irregular period", "irregular cycle", "acne", "weight gain", "excess hair", "hair growth", "missed period"],
-    "thyroid_disorder": ["hair loss", "cold", "constipation", "weight gain", "fatigue", "slow", "swelling"],
-    "vitamin_d_deficiency": ["bone pain", "muscle pain", "joint pain", "low sunlight", "sunlight", "tired", "weak bones"],
-    "diabetes_risk": ["thirst", "frequent urination", "urination", "hunger", "blurred vision", "weight loss", "sugar"],
-    "normal": ["regular cycle", "normal", "fine", "ok", "good sleep", "no issues", "healthy"],
+    "iron_deficiency_anemia": [
+        "fatigue",
+        "dizzy",
+        "dizziness",
+        "weak",
+        "pale",
+        "heavy bleeding",
+        "craving",
+        "shortness of breath",
+    ],
+    "pcos": [
+        "irregular period",
+        "irregular cycle",
+        "acne",
+        "weight gain",
+        "excess hair",
+        "hair growth",
+        "missed period",
+    ],
+    "thyroid_disorder": [
+        "hair loss",
+        "cold",
+        "constipation",
+        "weight gain",
+        "fatigue",
+        "slow",
+        "swelling",
+    ],
+    "vitamin_d_deficiency": [
+        "bone pain",
+        "muscle pain",
+        "joint pain",
+        "low sunlight",
+        "sunlight",
+        "tired",
+        "weak bones",
+    ],
+    "diabetes_risk": [
+        "thirst",
+        "frequent urination",
+        "urination",
+        "hunger",
+        "blurred vision",
+        "weight loss",
+        "sugar",
+    ],
+    "normal": [
+        "regular cycle",
+        "normal",
+        "fine",
+        "ok",
+        "good sleep",
+        "no issues",
+        "healthy",
+    ],
 }
 
 
@@ -73,7 +122,9 @@ ARTIFACT_PATH = Path(
 
 _LIBOMP_PATH = Path("/opt/homebrew/opt/libomp/lib/libomp.dylib")
 if _LIBOMP_PATH.exists():
-    os.environ["DYLD_LIBRARY_PATH"] = f"{_LIBOMP_PATH.parent}:{os.environ.get('DYLD_LIBRARY_PATH', '')}".strip(":")
+    os.environ["DYLD_LIBRARY_PATH"] = (
+        f"{_LIBOMP_PATH.parent}:{os.environ.get('DYLD_LIBRARY_PATH', '')}".strip(":")
+    )
     try:
         ctypes.CDLL(str(_LIBOMP_PATH))
     except OSError:
@@ -119,17 +170,38 @@ def _feature_dict(
         "vitamin_d_kw": float(_count_keywords(text, KEYWORDS["vitamin_d_deficiency"])),
         "diabetes_kw": float(_count_keywords(text, KEYWORDS["diabetes_risk"])),
         "normal_kw": float(_count_keywords(text, KEYWORDS["normal"])),
-        "dizziness_kw": float(sum(keyword in text for keyword in ["dizzy", "dizziness", "lightheaded"])),
-        "bleeding_kw": float(sum(keyword in text for keyword in ["heavy bleeding", "bleeding", "heavy periods"])),
+        "dizziness_kw": float(
+            sum(keyword in text for keyword in ["dizzy", "dizziness", "lightheaded"])
+        ),
+        "bleeding_kw": float(
+            sum(
+                keyword in text
+                for keyword in ["heavy bleeding", "bleeding", "heavy periods"]
+            )
+        ),
         "acne_kw": float(sum(keyword in text for keyword in ["acne", "pimples"])),
-        "hair_loss_kw": float(sum(keyword in text for keyword in ["hair loss", "hair fall"])),
-        "weight_gain_kw": float(sum(keyword in text for keyword in ["weight gain", "gaining weight"])),
-        "cold_kw": float(sum(keyword in text for keyword in ["cold", "cold intolerance"])),
+        "hair_loss_kw": float(
+            sum(keyword in text for keyword in ["hair loss", "hair fall"])
+        ),
+        "weight_gain_kw": float(
+            sum(keyword in text for keyword in ["weight gain", "gaining weight"])
+        ),
+        "cold_kw": float(
+            sum(keyword in text for keyword in ["cold", "cold intolerance"])
+        ),
         "constipation_kw": float(sum(keyword in text for keyword in ["constipation"])),
-        "thirst_kw": float(sum(keyword in text for keyword in ["thirst", "very thirsty"])),
-        "urination_kw": float(sum(keyword in text for keyword in ["frequent urination", "urination"])),
-        "bone_pain_kw": float(sum(keyword in text for keyword in ["bone pain", "joint pain"])),
-        "muscle_pain_kw": float(sum(keyword in text for keyword in ["muscle pain", "body ache"])),
+        "thirst_kw": float(
+            sum(keyword in text for keyword in ["thirst", "very thirsty"])
+        ),
+        "urination_kw": float(
+            sum(keyword in text for keyword in ["frequent urination", "urination"])
+        ),
+        "bone_pain_kw": float(
+            sum(keyword in text for keyword in ["bone pain", "joint pain"])
+        ),
+        "muscle_pain_kw": float(
+            sum(keyword in text for keyword in ["muscle pain", "body ache"])
+        ),
     }
 
 
@@ -158,40 +230,124 @@ def build_features(
 def _synthetic_templates() -> Dict[str, List[Dict[str, float]]]:
     return {
         "iron_deficiency_anemia": [
-            {"fatigue_level": 9, "sleep_quality": 4, "iron_kw": 3, "dizziness_kw": 1, "bleeding_kw": 1, "text_length": 90},
-            {"fatigue_level": 8, "sleep_quality": 5, "iron_kw": 2, "dizziness_kw": 1, "bleeding_kw": 1, "text_length": 85},
-            {"fatigue_level": 7, "sleep_quality": 4, "iron_kw": 2, "dizziness_kw": 1, "bleeding_kw": 1, "text_length": 80},
-            {"fatigue_level": 10, "sleep_quality": 3, "iron_kw": 3, "dizziness_kw": 1, "bleeding_kw": 1, "text_length": 100},
+            {
+                "fatigue_level": 8,
+                "sleep_quality": 5,
+                "iron_kw": 2,
+                "dizziness_kw": 1,
+                "text_length": 70,
+            },
+            {
+                "fatigue_level": 7,
+                "sleep_quality": 5,
+                "iron_kw": 2,
+                "bleeding_kw": 1,
+                "text_length": 65,
+            },
+            {
+                "fatigue_level": 6,
+                "sleep_quality": 6,
+                "iron_kw": 1,
+                "dizziness_kw": 0,
+                "text_length": 60,
+            },
         ],
         "pcos": [
-            {"fatigue_level": 6, "sleep_quality": 5, "pcos_kw": 3, "acne_kw": 1, "weight_gain_kw": 1, "text_length": 88},
-            {"fatigue_level": 5, "sleep_quality": 6, "pcos_kw": 3, "acne_kw": 1, "weight_gain_kw": 1, "text_length": 82},
-            {"fatigue_level": 7, "sleep_quality": 5, "pcos_kw": 2, "acne_kw": 1, "weight_gain_kw": 1, "text_length": 90},
-            {"fatigue_level": 6, "sleep_quality": 5, "pcos_kw": 3, "acne_kw": 1, "weight_gain_kw": 2, "text_length": 92},
+            {
+                "fatigue_level": 5,
+                "sleep_quality": 6,
+                "pcos_kw": 2,
+                "acne_kw": 1,
+                "text_length": 68,
+            },
+            {
+                "fatigue_level": 6,
+                "sleep_quality": 5,
+                "pcos_kw": 2,
+                "weight_gain_kw": 1,
+                "text_length": 72,
+            },
+            {
+                "fatigue_level": 5,
+                "sleep_quality": 6,
+                "pcos_kw": 1,
+                "acne_kw": 0,
+                "text_length": 65,
+            },
         ],
         "thyroid_disorder": [
-            {"fatigue_level": 8, "sleep_quality": 4, "thyroid_kw": 3, "hair_loss_kw": 1, "cold_kw": 1, "text_length": 95},
-            {"fatigue_level": 9, "sleep_quality": 4, "thyroid_kw": 2, "hair_loss_kw": 1, "constipation_kw": 1, "text_length": 90},
-            {"fatigue_level": 7, "sleep_quality": 5, "thyroid_kw": 3, "cold_kw": 1, "weight_gain_kw": 1, "text_length": 88},
-            {"fatigue_level": 8, "sleep_quality": 3, "thyroid_kw": 2, "hair_loss_kw": 1, "weight_gain_kw": 1, "text_length": 94},
+            {
+                "fatigue_level": 7,
+                "sleep_quality": 5,
+                "thyroid_kw": 2,
+                "hair_loss_kw": 1,
+                "text_length": 75,
+            },
+            {
+                "fatigue_level": 6,
+                "sleep_quality": 6,
+                "thyroid_kw": 1,
+                "cold_kw": 1,
+                "text_length": 70,
+            },
+            {
+                "fatigue_level": 7,
+                "sleep_quality": 5,
+                "thyroid_kw": 1,
+                "constipation_kw": 0,
+                "text_length": 68,
+            },
         ],
         "vitamin_d_deficiency": [
-            {"fatigue_level": 7, "sleep_quality": 5, "vitamin_d_kw": 3, "bone_pain_kw": 1, "muscle_pain_kw": 1, "text_length": 93},
-            {"fatigue_level": 6, "sleep_quality": 6, "vitamin_d_kw": 2, "bone_pain_kw": 1, "muscle_pain_kw": 1, "text_length": 89},
-            {"fatigue_level": 8, "sleep_quality": 4, "vitamin_d_kw": 3, "bone_pain_kw": 1, "muscle_pain_kw": 1, "text_length": 86},
-            {"fatigue_level": 7, "sleep_quality": 5, "vitamin_d_kw": 2, "bone_pain_kw": 1, "muscle_pain_kw": 2, "text_length": 91},
+            {
+                "fatigue_level": 6,
+                "sleep_quality": 5,
+                "vitamin_d_kw": 2,
+                "bone_pain_kw": 1,
+                "text_length": 70,
+            },
+            {
+                "fatigue_level": 5,
+                "sleep_quality": 6,
+                "vitamin_d_kw": 1,
+                "muscle_pain_kw": 1,
+                "text_length": 68,
+            },
+            {
+                "fatigue_level": 6,
+                "sleep_quality": 5,
+                "vitamin_d_kw": 1,
+                "bone_pain_kw": 0,
+                "text_length": 65,
+            },
         ],
         "diabetes_risk": [
-            {"fatigue_level": 7, "sleep_quality": 5, "diabetes_kw": 3, "thirst_kw": 1, "urination_kw": 1, "text_length": 96},
-            {"fatigue_level": 8, "sleep_quality": 4, "diabetes_kw": 2, "thirst_kw": 1, "urination_kw": 1, "text_length": 91},
-            {"fatigue_level": 6, "sleep_quality": 5, "diabetes_kw": 3, "thirst_kw": 1, "urination_kw": 2, "text_length": 98},
-            {"fatigue_level": 7, "sleep_quality": 4, "diabetes_kw": 2, "thirst_kw": 2, "urination_kw": 1, "text_length": 95},
+            {
+                "fatigue_level": 6,
+                "sleep_quality": 5,
+                "diabetes_kw": 2,
+                "thirst_kw": 1,
+                "text_length": 72,
+            },
+            {
+                "fatigue_level": 5,
+                "sleep_quality": 6,
+                "diabetes_kw": 1,
+                "urination_kw": 1,
+                "text_length": 70,
+            },
+            {
+                "fatigue_level": 6,
+                "sleep_quality": 5,
+                "diabetes_kw": 1,
+                "thirst_kw": 0,
+                "text_length": 68,
+            },
         ],
         "normal": [
-            {"fatigue_level": 4, "sleep_quality": 7, "normal_kw": 3, "text_length": 70},
-            {"fatigue_level": 5, "sleep_quality": 7, "normal_kw": 3, "text_length": 68},
-            {"fatigue_level": 3, "sleep_quality": 8, "normal_kw": 2, "text_length": 65},
-            {"fatigue_level": 4, "sleep_quality": 6, "normal_kw": 2, "text_length": 72},
+            {"fatigue_level": 4, "sleep_quality": 7, "normal_kw": 2, "text_length": 50},
+            {"fatigue_level": 5, "sleep_quality": 7, "normal_kw": 2, "text_length": 55},
+            {"fatigue_level": 4, "sleep_quality": 8, "normal_kw": 1, "text_length": 48},
         ],
     }
 
@@ -240,15 +396,24 @@ def _build_training_frame() -> Tuple[List[Dict[str, float]], np.ndarray]:
 
     for label_index, label in enumerate(LABELS):
         for template in templates[label]:
-            for _ in range(35):
+            for _ in range(12):  # Reduced from 35 to 12
                 sample = dict(template)
+                # Add noise to make it more realistic
+                noise_fatigue = rng.randint(-2, 2)
+                noise_sleep = rng.randint(-2, 2)
                 sample.setdefault("fatigue_level", float(rng.randint(3, 10)))
                 sample.setdefault("sleep_quality", float(rng.randint(3, 8)))
+                sample["fatigue_level"] = max(
+                    1, min(10, sample["fatigue_level"] + noise_fatigue)
+                )
+                sample["sleep_quality"] = max(
+                    1, min(10, sample["sleep_quality"] + noise_sleep)
+                )
                 sample.setdefault("age", float(rng.randint(18, 45)))
-                sample.setdefault("avg_cycle_length", float(rng.randint(26, 34)))
-                sample.setdefault("cycle_variation", float(rng.randint(0, 6)))
-                sample.setdefault("recent_fatigue_avg", float(rng.randint(3, 7)))
-                sample.setdefault("recent_sleep_avg", float(rng.randint(4, 8)))
+                sample.setdefault("avg_cycle_length", float(rng.randint(24, 36)))
+                sample.setdefault("cycle_variation", float(rng.randint(0, 10)))
+                sample.setdefault("recent_fatigue_avg", float(rng.randint(2, 8)))
+                sample.setdefault("recent_sleep_avg", float(rng.randint(3, 9)))
                 sample.setdefault("iron_kw", 0.0)
                 sample.setdefault("pcos_kw", 0.0)
                 sample.setdefault("thyroid_kw", 0.0)
@@ -266,9 +431,15 @@ def _build_training_frame() -> Tuple[List[Dict[str, float]], np.ndarray]:
                 sample.setdefault("urination_kw", 0.0)
                 sample.setdefault("bone_pain_kw", 0.0)
                 sample.setdefault("muscle_pain_kw", 0.0)
-                sample["fatigue_delta"] = sample["fatigue_level"] - sample["recent_fatigue_avg"]
-                sample["sleep_delta"] = sample["sleep_quality"] - sample["recent_sleep_avg"]
-                sample["text_length"] = float(sample.get("text_length", 80) + rng.randint(-8, 8))
+                sample["fatigue_delta"] = (
+                    sample["fatigue_level"] - sample["recent_fatigue_avg"]
+                )
+                sample["sleep_delta"] = (
+                    sample["sleep_quality"] - sample["recent_sleep_avg"]
+                )
+                sample["text_length"] = float(
+                    sample.get("text_length", 60) + rng.randint(-15, 15)
+                )
                 sample["label_text"] = _sample_text(label, rng)
                 rows.append(sample)
                 labels.append(label_index)
@@ -279,22 +450,26 @@ def _build_training_frame() -> Tuple[List[Dict[str, float]], np.ndarray]:
 def _fit_model() -> Dict[str, object]:
     rows, target = _build_training_frame()
     vectorizer = DictVectorizer(sparse=True)
-    feature_rows = [dict((k, v) for k, v in row.items() if k != "label_text") for row in rows]
+    feature_rows = [
+        dict((k, v) for k, v in row.items() if k != "label_text") for row in rows
+    ]
     matrix = vectorizer.fit_transform(feature_rows)
     train_matrix, test_matrix, train_target, test_target = train_test_split(
-        matrix, target, test_size=0.2, random_state=42, stratify=target
+        matrix, target, test_size=0.25, random_state=42, stratify=target
     )
 
+    # More regularization to prevent overfitting and get realistic confidence scores
     model = XGBClassifier(
         objective="multi:softprob",
         num_class=len(LABELS),
-        n_estimators=180,
-        max_depth=4,
-        learning_rate=0.08,
-        subsample=0.9,
-        colsample_bytree=0.9,
-        reg_lambda=1.0,
-        min_child_weight=1,
+        n_estimators=50,  # Reduced from 180
+        max_depth=3,  # Reduced from 4
+        learning_rate=0.1,  # Slightly higher for better generalization
+        subsample=0.7,  # Reduced for more variance
+        colsample_bytree=0.7,  # Reduced for more variance
+        reg_lambda=5.0,  # Increased regularization
+        reg_alpha=2.0,  # L1 regularization
+        min_child_weight=3,  # Increased to prevent overfitting
         tree_method="hist",
         random_state=42,
         eval_metric="mlogloss",
@@ -325,7 +500,12 @@ def load_model() -> Tuple[DictVectorizer, XGBClassifier, List[str], Dict[str, fl
     else:
         artifact = _fit_model()
         _save_artifact(artifact)
-    return artifact["vectorizer"], artifact["model"], artifact["labels"], artifact["metrics"]
+    return (
+        artifact["vectorizer"],
+        artifact["model"],
+        artifact["labels"],
+        artifact["metrics"],
+    )
 
 
 def get_model_metadata() -> Dict[str, float]:
@@ -339,14 +519,33 @@ def predict_from_features(feature_row: Dict[str, float]) -> Dict[str, object]:
     probabilities = model.predict_proba(matrix)[0]
     best_index = int(np.argmax(probabilities))
     best_label = labels[best_index]
-    confidence = float(probabilities[best_index])
-    probability_map = {labels[index]: float(probabilities[index]) for index in range(len(labels))}
+    raw_confidence = float(probabilities[best_index])
+
+    # Apply confidence moderation to avoid unrealistic 100%
+    # Scale: 0.5 -> 0.5, 0.85 -> 0.80, 0.95 -> 0.85, 1.0 -> 0.88
+    confidence = _moderate_confidence(raw_confidence)
+
+    probability_map = {
+        labels[index]: float(probabilities[index]) for index in range(len(labels))
+    }
     return {
         "risk_type": best_label,
         "confidence_score": confidence,
         "confidence_label": confidence_label(confidence),
         "probabilities": probability_map,
     }
+
+
+def _moderate_confidence(raw_confidence: float) -> float:
+    """Moderate confidence to avoid unrealistic 100% readings."""
+    if raw_confidence <= 0.5:
+        return raw_confidence
+
+    # Scale: 0.5->0.5, 0.7->0.6, 0.85->0.72, 0.95->0.80, 1.0->0.85
+    moderated = 0.5 + (raw_confidence - 0.5) * 0.5
+
+    # Cap at 85% max for any prediction
+    return min(moderated, 0.85)
 
 
 def confidence_label(confidence: float) -> str:

@@ -1,6 +1,7 @@
 import os
 import tempfile
 from pathlib import Path
+from datetime import datetime, timedelta, UTC
 from uuid import uuid4
 
 import pytest
@@ -9,9 +10,9 @@ import requests
 os.environ.setdefault("DATABASE_URL", f"sqlite:///{Path(tempfile.gettempdir()) / 'she_intel_test.db'}")
 os.environ.setdefault("XGB_MODEL_ARTIFACT_PATH", str(Path(tempfile.gettempdir()) / 'she_intel_xgb_model.joblib'))
 
-from app.main import app  # noqa: E402
-from app.ml.xgb_model import ARTIFACT_PATH, get_model_metadata  # noqa: E402
-from app.services import india_context as india_context_service  # noqa: E402
+from backend.app.main import app  # noqa: E402
+from backend.app.ml.xgb_model import ARTIFACT_PATH, get_model_metadata  # noqa: E402
+from backend.app.services import india_context as india_context_service  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402
 
 
@@ -86,32 +87,27 @@ def seed_history(headers):
     )
 
 
-def test_analysis_response_includes_model_metrics_and_india_context():
+def test_analysis_response_includes_top_indicators_and_india_context():
     headers = create_user("analysis@example.com")
     seed_history(headers)
 
     response = client.post(
         "/analysis/analyze",
         headers=headers,
-        json={
-            "description": "Feeling dizzy, pale, tired with heavy bleeding and cravings",
-            "fatigue_level": 9,
-            "sleep_quality": 4,
-            "mood": "tired",
-        },
+        json={},
     )
 
     assert response.status_code == 200
     payload = response.json()
-    assert payload["medical_disclaimer"] == "This is not a diagnosis. Please consult a doctor for confirmation."
-    assert payload["model_metrics"]["accuracy"] >= 0.85
-    assert payload["model_metrics"]["macro_f1"] >= 0.85
+    assert payload["medical_disclaimer"].startswith("This is not a diagnosis")
     assert isinstance(payload["aqi_enrichment"], dict)
     assert payload["aqi_enrichment"]["aqi_category"] in {"good", "satisfactory", "moderate", "poor", "very poor", "severe"}
     assert len(payload["diet_recommendations"]) >= 1
     assert len(payload["government_schemes"]) >= 1
-    assert len(payload["lab_test_cost_estimates"]) >= 1
+    assert len(payload["top_risk_indicators"]) >= 1
+    assert "Top Risk Indicators" in payload["health_insight_report"]
     assert isinstance(payload["bias_awareness"], str)
+    assert payload["analyzed_symptom_id"] > 0
 
 
 def test_aqi_fallback_is_cached_for_repeated_requests(monkeypatch):
@@ -146,12 +142,7 @@ def test_api_smoke_for_history_and_auth_guards():
     analyze_response = client.post(
         "/analysis/analyze",
         headers=headers,
-        json={
-            "description": "Feeling dizzy, pale, tired with heavy bleeding and cravings",
-            "fatigue_level": 9,
-            "sleep_quality": 4,
-            "mood": "tired",
-        },
+        json={},
     )
     assert analyze_response.status_code == 200
 
@@ -239,6 +230,20 @@ def test_phase2_periods_smoke_create_list_calendar_and_invalid_dates():
     )
     assert invalid.status_code == 422
 
+    future_start = (datetime.now(UTC) + timedelta(days=5)).replace(tzinfo=None).isoformat()
+    future_end = (datetime.now(UTC) + timedelta(days=7)).replace(tzinfo=None).isoformat()
+    future = client.post(
+        "/periods/",
+        headers=headers,
+        json={
+            "start_date": future_start,
+            "end_date": future_end,
+            "flow_level": "light",
+            "symptoms": "planned entry",
+        },
+    )
+    assert future.status_code == 422
+
 
 def test_phase2_symptoms_smoke_list_limit_and_auth_guard():
     headers = create_user("phase2_symptoms@example.com")
@@ -259,8 +264,69 @@ def test_phase2_symptoms_smoke_list_limit_and_auth_guard():
     assert listed.status_code == 200
     assert len(listed.json()) >= 1
 
+    dated = client.post(
+        "/symptoms/",
+        headers=headers,
+        json={
+            "description": "Backdated symptom record",
+            "fatigue_level": 5,
+            "sleep_quality": 6,
+            "mood": "calm",
+            "date": "2026-01-15T00:00:00",
+        },
+    )
+    assert dated.status_code == 200
+
+    filtered = client.get(
+        "/symptoms/?start_date=2026-01-01T00:00:00&end_date=2026-01-31T23:59:59",
+        headers=headers,
+    )
+    assert filtered.status_code == 200
+    assert any(item["description"] == "Backdated symptom record" for item in filtered.json())
+
     unauthorized = client.get("/symptoms/")
     assert unauthorized.status_code == 401
+
+
+def test_analysis_can_use_selected_symptom_id():
+    headers = create_user("analysis_selection@example.com")
+
+    old_entry = client.post(
+        "/symptoms/",
+        headers=headers,
+        json={
+            "description": "I have thirst, frequent urination and hunger",
+            "fatigue_level": 6,
+            "sleep_quality": 5,
+            "mood": "anxious",
+            "date": "2026-01-10T00:00:00",
+        },
+    )
+    assert old_entry.status_code == 200
+    old_id = old_entry.json()["id"]
+
+    latest_entry = client.post(
+        "/symptoms/",
+        headers=headers,
+        json={
+            "description": "Hair loss and fatigue with cold intolerance",
+            "fatigue_level": 8,
+            "sleep_quality": 4,
+            "mood": "tired",
+            "date": "2026-03-10T00:00:00",
+        },
+    )
+    assert latest_entry.status_code == 200
+
+    selected = client.post(
+        "/analysis/analyze",
+        headers=headers,
+        json={"symptom_id": old_id},
+    )
+    assert selected.status_code == 200
+    selected_payload = selected.json()
+    assert selected_payload["analyzed_symptom_id"] == old_id
+    assert selected_payload["top_risk_indicators"][0]["condition"] == "Diabetes Risk"
 
 
 def test_phase2_auth_missing_token_and_bad_payload():
